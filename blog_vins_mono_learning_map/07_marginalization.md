@@ -1,4 +1,4 @@
-# 04 滑动窗口与边缘化：如何丢掉旧变量但保留历史信息
+# 07 滑动窗口与边缘化：如何丢掉旧变量但保留历史信息
 
 ## 1. 因子图会越长越大
 
@@ -106,6 +106,85 @@ $$
 这个积分就是概率意义上的边缘化。它的含义是：我们不再关心 $\mathcal{X}_m$ 具体取值，但要把所有可能的 $\mathcal{X}_m$ 对 $\mathcal{X}_r$ 的影响加总起来。
 
 对于高斯分布，这个积分可以用线性代数里的 Schur 补高效完成。
+
+为了直观理解这个积分，先看一个二维高斯例子。设有两个标量变量：
+
+$$
+x_m,\quad x_r
+$$
+
+其中 $x_m$ 是要删除的变量，$x_r$ 是要保留的变量。假设它们的联合负对数概率是一个二次型：
+
+$$
+E(x_m,x_r)
+=
+\frac{1}{2}
+\begin{bmatrix}
+x_m\\x_r
+\end{bmatrix}^{\top}
+\begin{bmatrix}
+H_{mm} & H_{mr}\\
+H_{rm} & H_{rr}
+\end{bmatrix}
+\begin{bmatrix}
+x_m\\x_r
+\end{bmatrix}
+-
+\begin{bmatrix}
+g_m\\g_r
+\end{bmatrix}^{\top}
+\begin{bmatrix}
+x_m\\x_r
+\end{bmatrix}
+$$
+
+其中：
+
+- $E(x_m,x_r)$ 表示联合概率对应的能量函数；
+- $H_{mm}$、$H_{mr}$、$H_{rm}$、$H_{rr}$ 是 Hessian 的分块；
+- $g_m$ 和 $g_r$ 是梯度向量的分块。
+
+边缘化 $x_m$ 后，我们希望得到只关于 $x_r$ 的能量：
+
+$$
+E_{\text{marg}}(x_r)
+=
+-
+\log
+\int
+\exp
+\left(
+-
+E(x_m,x_r)
+\right)
+dx_m
+$$
+
+对高斯分布来说，这个积分的结果仍然是关于 $x_r$ 的二次函数：
+
+$$
+E_{\text{marg}}(x_r)
+=
+\frac{1}{2}
+x_r^{\top}
+H^{prior}_r
+x_r
+-
+\left(
+g^{prior}_r
+\right)^{\top}
+x_r
++
+\text{const}
+$$
+
+其中 $H^{prior}_r$ 和 $g^{prior}_r$ 正是后面 Schur 补得到的结果。也就是说：
+
+$$
+\text{概率积分掉变量}
+\quad\Longleftrightarrow\quad
+\text{在线性高斯二次型中做 Schur 补}
+$$
 
 ## 4. 在线性化后的二次问题中做边缘化
 
@@ -222,6 +301,22 @@ $$
 \right\|^2
 $$
 
+如果每个残差都有协方差，那么更一般的形式是：
+
+$$
+\min_{\delta\mathcal{X}}
+\left\|
+\mathbf{r}_0
++
+\mathbf{J}\delta\mathcal{X}
+\right\|_{\mathbf{\Omega}}^2
+$$
+
+其中：
+
+- $\mathbf{\Omega}$ 表示所有残差的信息矩阵；
+- 如果已经把残差和 Jacobian 乘过 sqrt information，那么可以把 $\mathbf{\Omega}$ 看成单位矩阵。
+
 它对应正规方程：
 
 $$
@@ -235,13 +330,45 @@ $$
 $$
 \mathbf{H}
 =
-\mathbf{J}^{\top}\mathbf{J}
+\mathbf{J}^{\top}\mathbf{\Omega}\mathbf{J}
 $$
 
 $$
 \mathbf{g}
 =
--\mathbf{J}^{\top}\mathbf{r}_0
+-
+\mathbf{J}^{\top}\mathbf{\Omega}\mathbf{r}_0
+$$
+
+如果使用白化后的残差：
+
+$$
+\tilde{\mathbf{r}}_0
+=
+\mathbf{L}^{\top}\mathbf{r}_0,
+\quad
+\tilde{\mathbf{J}}
+=
+\mathbf{L}^{\top}\mathbf{J},
+\quad
+\mathbf{\Omega}
+=
+\mathbf{L}\mathbf{L}^{\top}
+$$
+
+那么上式就退化成：
+
+$$
+\mathbf{H}
+=
+\tilde{\mathbf{J}}^{\top}\tilde{\mathbf{J}}
+$$
+
+$$
+\mathbf{g}
+=
+-
+\tilde{\mathbf{J}}^{\top}\tilde{\mathbf{r}}_0
 $$
 
 现在把增量分成两部分：
@@ -360,6 +487,53 @@ $$
 
 这就是 Schur 补边缘化。
 
+从二次能量角度看，边缘化前的局部能量是：
+
+$$
+E(\delta\mathcal{X}_m,\delta\mathcal{X}_r)
+=
+\frac{1}{2}
+\begin{bmatrix}
+\delta\mathcal{X}_m\\
+\delta\mathcal{X}_r
+\end{bmatrix}^{\top}
+\begin{bmatrix}
+\mathbf{H}_{mm} & \mathbf{H}_{mr}\\
+\mathbf{H}_{rm} & \mathbf{H}_{rr}
+\end{bmatrix}
+\begin{bmatrix}
+\delta\mathcal{X}_m\\
+\delta\mathcal{X}_r
+\end{bmatrix}
+-
+\begin{bmatrix}
+\mathbf{g}_m\\
+\mathbf{g}_r
+\end{bmatrix}^{\top}
+\begin{bmatrix}
+\delta\mathcal{X}_m\\
+\delta\mathcal{X}_r
+\end{bmatrix}
+$$
+
+边缘化后变成：
+
+$$
+E^{prior}(\delta\mathcal{X}_r)
+=
+\frac{1}{2}
+\delta\mathcal{X}_r^{\top}
+\mathbf{H}^{prior}_r
+\delta\mathcal{X}_r
+-
+\left(
+\mathbf{g}^{prior}_r
+\right)^{\top}
+\delta\mathcal{X}_r
+$$
+
+因此，边缘化先验不是一个“固定值约束”，而是一个关于保留变量的二次能量。
+
 ## 5. Schur 补到底保留了什么
 
 Schur 补的效果可以用一个简单例子说明。
@@ -459,7 +633,83 @@ $$
 \mathbf{H}^{\text{prior}}_r
 $$
 
-对应的先验残差可以按梯度关系构造。具体符号会随实现约定变化，但本质是让这个残差的二次近似等价于边缘化得到的 Hessian 和梯度。
+现在还需要构造 $\mathbf{r}^{\text{prior}}_0$，使得：
+
+$$
+\left(\mathbf{J}^{\text{prior}}\right)^{\top}
+\mathbf{r}^{\text{prior}}_0
+=
+-
+\mathbf{g}^{\text{prior}}_r
+$$
+
+由于：
+
+$$
+\mathbf{J}^{\text{prior}}
+=
+\mathbf{S}^{\frac{1}{2}}\mathbf{V}^{\top}
+$$
+
+所以：
+
+$$
+\left(\mathbf{J}^{\text{prior}}\right)^{\top}
+=
+\mathbf{V}\mathbf{S}^{\frac{1}{2}}
+$$
+
+我们可以取：
+
+$$
+\mathbf{r}^{\text{prior}}_0
+=
+-
+\mathbf{S}^{-\frac{1}{2}}
+\mathbf{V}^{\top}
+\mathbf{g}^{\text{prior}}_r
+$$
+
+验证一下：
+
+$$
+\left(\mathbf{J}^{\text{prior}}\right)^{\top}
+\mathbf{r}^{\text{prior}}_0
+=
+\mathbf{V}\mathbf{S}^{\frac{1}{2}}
+\left(
+-
+\mathbf{S}^{-\frac{1}{2}}
+\mathbf{V}^{\top}
+\mathbf{g}^{\text{prior}}_r
+\right)
+=
+-
+\mathbf{V}\mathbf{V}^{\top}
+\mathbf{g}^{\text{prior}}_r
+=
+-
+\mathbf{g}^{\text{prior}}_r
+$$
+
+这样构造出来的先验残差满足：
+
+$$
+\left\|
+\mathbf{r}^{\text{prior}}_0
++
+\mathbf{J}^{\text{prior}}\delta\mathcal{X}_r
+\right\|^2
+$$
+
+它展开后的二次项和一次项，正好等价于 Schur 补得到的：
+
+$$
+\mathbf{H}^{prior}_r,\quad
+\mathbf{g}^{prior}_r
+$$
+
+实际系统中还会处理很小的特征值。若某个特征值接近 $0$，说明这个方向信息不足，直接求倒数会放大数值噪声。常见做法是只保留大于阈值的特征值，对接近零的方向置零。这是数值稳定性处理，不改变边缘化的数学主线。
 
 ## 7. 滑动窗口中通常边缘化谁
 

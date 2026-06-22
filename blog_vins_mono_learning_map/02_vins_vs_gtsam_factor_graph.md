@@ -704,7 +704,7 @@ $$
 \text{生成剩余变量上的先验因子}
 $$
 
-区别在于，VINS 往往手动决定边缘化最老帧还是次新帧，手动收集相关残差，手动构造 Hessian 和 Schur 补，并显式维护 FEJ 线性化点；GTSAM 更倾向于把这些操作放在通用的图优化、smoother 或 fixed-lag smoothing 抽象中处理。
+区别在于，VINS 往往手动决定边缘化最老帧还是次新帧，手动收集相关残差，手动构造 Hessian 和 Schur 补，并显式维护边缘化 prior 的线性化参考点；GTSAM 更倾向于把这些操作放在通用的图优化、smoother 或 fixed-lag smoothing 抽象中处理。
 
 ## 11. 第四类差异：边缘化的表达方式
 
@@ -731,7 +731,7 @@ $$
 
 这个先验是一个多元因子，可能连接窗口中多个保留状态。
 
-GTSAM 也可以表达先验因子，也可以做 marginalization 或 fixed-lag smoothing。不同在于，GTSAM 通常会从图优化框架角度处理这些操作，而 VINS 通常会为了 FEJ、一致性和实时性手动维护这个先验的线性化点、雅克比和残差。
+GTSAM 也可以表达先验因子，也可以做 marginalization 或 fixed-lag smoothing。不同在于，GTSAM 通常会从图优化框架角度处理这些操作，而 VINS 通常会为了边缘化 prior 的一致性和实时性手动维护这个先验的线性化点、雅克比和残差。
 
 因此：
 
@@ -742,7 +742,7 @@ $$
 但工程关注点不同：
 
 $$
-\text{VINS 更强调边缘化先验的手动构造和 FEJ 使用}
+\text{VINS 更强调边缘化先验的手动构造和线性化参考点维护}
 $$
 
 $$
@@ -825,7 +825,7 @@ $$
 | 因子表示 | 残差块 | nonlinear factor |
 | 图结构 | 隐式存在于参数块连接关系中 | 显式 factor graph |
 | 求解方式 | 固定窗口批量优化 | 批量或增量图优化 |
-| 边缘化 | 手动构造先验，常配合 FEJ | 通用 marginalization 或 fixed-lag smoothing |
+| 边缘化 | 手动构造先验，并维护 prior 的线性化参考点 | 通用 marginalization 或 fixed-lag smoothing |
 | 适用场景 | 专用实时 VIO | 通用 SLAM / Smoothing |
 | 流形处理 | local parameterization | manifold retract/local coordinates |
 

@@ -1,4 +1,4 @@
-# 06 可观性分析：VIO 不应该凭空知道什么
+# 09 可观性分析：VIO 不应该凭空知道什么
 
 ## 1. 可观性问题问的是什么
 
@@ -204,6 +204,71 @@ $$
 
 这意味着系统不应该凭空知道世界原点在哪里。
 
+如果把不可观方向写成线性化状态增量，全局平移的零空间基可以表示为：
+
+$$
+\mathbf{N}_{t_x}
+=
+\begin{bmatrix}
+\mathbf{e}_x\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{e}_x\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\vdots\\
+\mathbf{e}_x
+\end{bmatrix},
+\quad
+\mathbf{N}_{t_y}
+=
+\begin{bmatrix}
+\mathbf{e}_y\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{e}_y\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\vdots\\
+\mathbf{e}_y
+\end{bmatrix},
+\quad
+\mathbf{N}_{t_z}
+=
+\begin{bmatrix}
+\mathbf{e}_z\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{e}_z\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\mathbf{0}\\
+\vdots\\
+\mathbf{e}_z
+\end{bmatrix}
+$$
+
+其中：
+
+- $\mathbf{e}_x=[1,0,0]^{\top}$；
+- $\mathbf{e}_y=[0,1,0]^{\top}$；
+- $\mathbf{e}_z=[0,0,1]^{\top}$；
+- 每个 $\mathbf{e}$ 放在每个 pose 的位置扰动块以及每个地图点的位置扰动块上；
+- 姿态、速度、bias 等块在纯全局平移方向上为 $\mathbf{0}$。
+
+这个写法表达的是：所有位置一起平移，其他量不变。
+
 ## 4. 绕重力方向的全局 yaw 不可观
 
 IMU 可以感知重力方向。静止或低动态时，加速度计能提供关于 roll 和 pitch 的信息，因为重力给了一个竖直方向参考。但绕重力方向的旋转，也就是 yaw，通常没有绝对参考。
@@ -320,6 +385,137 @@ $$
 \text{VIO 的全局 yaw 是不可观的}
 $$
 
+全局 yaw 的不可观方向也可以写成一个状态增量。设 yaw 旋转轴单位向量为：
+
+$$
+\mathbf{u}_g
+=
+\frac{\mathbf{g}}{\|\mathbf{g}\|}
+$$
+
+其中 $\mathbf{u}_g$ 表示重力方向的单位向量。对一个很小的 yaw 扰动 $\delta\psi$，有：
+
+$$
+\mathbf{R}_{\psi}
+\approx
+\mathbf{I}
++
+\delta\psi\,\mathbf{u}_g^{\wedge}
+$$
+
+对位置有：
+
+$$
+\mathbf{p}'_k
+=
+\mathbf{R}_{\psi}\mathbf{p}_k
+\approx
+\mathbf{p}_k
++
+\delta\psi\,\mathbf{u}_g^{\wedge}\mathbf{p}_k
+$$
+
+因此位置扰动为：
+
+$$
+\delta\mathbf{p}_k
+=
+\mathbf{u}_g^{\wedge}\mathbf{p}_k\,\delta\psi
+=
+-
+\mathbf{p}_k^{\wedge}\mathbf{u}_g\,\delta\psi
+$$
+
+对姿态有：
+
+$$
+\mathbf{R}'_k
+=
+\mathbf{R}_{\psi}\mathbf{R}_k
+\approx
+\left(
+\mathbf{I}
++
+\delta\psi\,\mathbf{u}_g^{\wedge}
+\right)
+\mathbf{R}_k
+$$
+
+如果用世界系左扰动表达姿态误差，则姿态扰动方向就是：
+
+$$
+\delta\boldsymbol{\theta}_k
+=
+\mathbf{u}_g\,\delta\psi
+$$
+
+类似地，速度也会整体绕重力方向旋转：
+
+$$
+\delta\mathbf{v}_k
+=
+\mathbf{u}_g^{\wedge}\mathbf{v}_k\,\delta\psi
+=
+-
+\mathbf{v}_k^{\wedge}\mathbf{u}_g\,\delta\psi
+$$
+
+地图点位置扰动为：
+
+$$
+\delta\mathbf{P}_l
+=
+\mathbf{u}_g^{\wedge}\mathbf{P}_l\,\delta\psi
+=
+-
+\mathbf{P}_l^{\wedge}\mathbf{u}_g\,\delta\psi
+$$
+
+所以，全局 yaw 的零空间方向可以概念性写成：
+
+$$
+\mathbf{N}_{yaw}
+=
+\begin{bmatrix}
+-\mathbf{p}_0^{\wedge}\mathbf{u}_g\\
+\mathbf{u}_g\\
+-\mathbf{v}_0^{\wedge}\mathbf{u}_g\\
+\mathbf{0}\\
+\mathbf{0}\\
+-\mathbf{p}_1^{\wedge}\mathbf{u}_g\\
+\mathbf{u}_g\\
+-\mathbf{v}_1^{\wedge}\mathbf{u}_g\\
+\mathbf{0}\\
+\mathbf{0}\\
+\vdots\\
+-\mathbf{P}_l^{\wedge}\mathbf{u}_g\\
+\vdots
+\end{bmatrix}
+$$
+
+其中每个状态块按“位置、姿态、速度、加速度计 bias、陀螺仪 bias”的顺序排列。这个向量表达的是：整套轨迹、速度和地图点一起绕重力方向旋转，IMU bias 不变。
+
+把三个全局平移方向和一个全局 yaw 方向合起来，就得到不可观子空间基矩阵：
+
+$$
+\mathbf{N}
+=
+\begin{bmatrix}
+\mathbf{N}_{t_x} &
+\mathbf{N}_{t_y} &
+\mathbf{N}_{t_z} &
+\mathbf{N}_{yaw}
+\end{bmatrix}
+$$
+
+理想情况下，所有正确构造的线性化因子都应该满足：
+
+$$
+\mathbf{J}\mathbf{N}
+=
+\mathbf{0}
+$$
+
 ## 5. 单目尺度为什么在 VIO 中通常可观
 
 纯单目视觉 SLAM 中，如果所有位置和地图点同时乘以一个尺度 $s$：
@@ -398,7 +594,7 @@ $$
 
 - 初始化时把第一帧附近定义为世界坐标系参考；
 - 通过边缘化先验保留历史窗口对当前窗口的约束；
-- 在边缘化先验中固定线性化点和雅克比结构，避免历史约束语义漂移；
+- 在边缘化先验中固定线性化点和 prior 雅克比结构，避免历史约束语义漂移；
 - 在求解器中用阻尼、先验或参数化处理数值上的退化方向。
 
 所以，最老帧并不是一直作为变量留在窗口里动来动去。滑动窗口向前推进时，最老帧会被边缘化掉：
@@ -427,12 +623,14 @@ $$
 其中：
 
 - $\mathcal{X}_r$ 表示边缘化后保留下来的窗口变量；
-- $\bar{\mathcal{X}}_r$ 表示边缘化发生时保存的 first estimate；
-- $\mathbf{J}^{\text{prior}}(\bar{\mathcal{X}}_r)$ 表示在 first estimate 处计算并固定下来的先验雅克比。
+- $\bar{\mathcal{X}}_r$ 表示边缘化发生时保存的线性化参考点；
+- $\mathbf{J}^{\text{prior}}(\bar{\mathcal{X}}_r)$ 表示在该参考点处计算并固定下来的先验雅克比。
 
 如果边缘化先验的参考点或雅克比随着后续优化随意改变，那么历史约束的含义确实会“飘”。它可能把原本不可观的全局位置或全局 yaw 错误地约束起来，让系统产生虚假的确定性。
 
-FEJ 的意义就在这里：它不是简单地把某一帧物理锁死，而是让边缘化先验始终相对于同一个 first estimate 来解释。当前状态 $\mathcal{X}_r$ 可以继续被优化，但历史先验的线性化结构保持一致。
+这种固定边缘化 prior 的做法和 FEJ 思想很接近：它不是简单地把某一帧物理锁死，而是让边缘化先验始终相对于同一个参考点来解释。当前状态 $\mathcal{X}_r$ 可以继续被优化，但历史先验的线性化结构保持一致。
+
+不过，严格来说，崔华坤的《VINS 论文推导及代码解析》6.4 节说“VINS 中并未使用 FEJ”，指的是 VINS-Mono 没有把 first-estimate Jacobian 策略推广到所有仍保留在窗口内的普通视觉/IMU 因子。VINS-Mono 固定了边缘化 prior 的线性化结构，但窗口内原始非线性因子仍会按当前估计重线性化。因此它更像是使用了 FEJ-like 的边缘化 prior，而不是完整严格的 FEJ 系统。
 
 可以粗略理解为：
 
@@ -499,6 +697,91 @@ $$
 
 可以直观理解为：每个因子都认为“不可观方向”略有不同。把它们加在一起后，公共零空间变小，甚至消失。于是系统开始在本应不可观的方向上产生约束。
 
+用一个二维曲线例子可以看得更清楚。假设真实测量只约束：
+
+$$
+xy=1
+$$
+
+那么满足测量的解不是一个点，而是一条曲线：
+
+$$
+\mathcal{M}
+=
+\left\{
+(x,y)\mid xy=1
+\right\}
+$$
+
+这条曲线上的切向方向就是不可观方向：沿着曲线移动，测量仍然满足。
+
+定义残差：
+
+$$
+r(x,y)
+=
+xy-1
+$$
+
+在点 $(\bar{x},\bar{y})$ 处线性化：
+
+$$
+r(x,y)
+\approx
+\bar{x}\bar{y}-1
++
+\bar{y}(x-\bar{x})
++
+\bar{x}(y-\bar{y})
+$$
+
+Jacobian 为：
+
+$$
+\mathbf{J}(\bar{x},\bar{y})
+=
+\begin{bmatrix}
+\bar{y} & \bar{x}
+\end{bmatrix}
+$$
+
+该线性化模型的零空间方向 $\mathbf{n}$ 满足：
+
+$$
+\bar{y}n_x+\bar{x}n_y=0
+$$
+
+可以取：
+
+$$
+\mathbf{n}(\bar{x},\bar{y})
+=
+\begin{bmatrix}
+\bar{x}\\
+-\bar{y}
+\end{bmatrix}
+$$
+
+注意这个方向依赖线性化点。如果两个因子本来描述同一条不可观曲线，但分别在不同点线性化：
+
+$$
+(\bar{x}_1,\bar{y}_1)
+\neq
+(\bar{x}_2,\bar{y}_2)
+$$
+
+那么它们对应的零空间方向一般不同：
+
+$$
+\mathbf{n}(\bar{x}_1,\bar{y}_1)
+\neq
+\mathbf{n}(\bar{x}_2,\bar{y}_2)
+$$
+
+把两个线性化能量相加，相当于把两条不同切线的约束同时加在一起。两条切线通常会相交成一个点，于是原本的一维不可观曲线被错误地压成了一个确定点。
+
+这就是“不同线性化点会把不可观状态变可观”的直观数学解释。VIO 中的全局平移和 yaw 比这个例子高维得多，但机制相同：不同线性化点对应的零空间不一致，叠加后就可能产生虚假约束。
+
 ## 10. 边缘化为什么特别容易引入虚假信息
 
 普通窗口内的非线性因子还保留着原始函数。即使线性化有误，下一次迭代还可以重新线性化。
@@ -528,9 +811,9 @@ $$
 
 因为先验会一直存在于后续优化中，这种虚假信息还会长期影响系统。
 
-## 11. FEJ 如何帮助可观性保持
+## 11. FEJ-like prior 和严格 FEJ 如何帮助可观性保持
 
-FEJ 的核心做法是：
+边缘化 prior 固定线性化结构的核心做法是：
 
 $$
 \mathbf{J}^{\text{prior}}
@@ -538,7 +821,7 @@ $$
 \mathbf{J}^{\text{prior}}(\bar{\mathcal{X}})
 $$
 
-其中 $\bar{\mathcal{X}}$ 表示 first estimate，也就是边缘化发生时的线性化点。
+其中 $\bar{\mathcal{X}}$ 表示边缘化发生时的线性化点。
 
 后续先验残差更新为：
 
@@ -553,9 +836,23 @@ $$
 \right)
 $$
 
-这样做的意义是：边缘化先验的零空间结构不会随着后续状态估计变化而改变。也就是说，如果边缘化时该先验没有约束某个不可观方向，那么后续它不会因为雅克比更新而突然开始约束这个方向。
+这样做的意义是：边缘化先验的零空间结构不会随着后续状态估计变化而改变。也就是说，如果边缘化时该先验没有约束某个不可观方向，那么后续它不会因为 prior 雅克比更新而突然开始约束这个方向。
 
-FEJ 并不是显式地构造不可观子空间并强制投影，而是通过固定 first estimate 雅克比，减少边缘化先验对不可观方向的虚假信息注入。
+严格 FEJ 会再进一步：不仅边缘化 prior 固定线性化点，窗口内某些仍然存在的普通因子在计算雅克比时也使用 first estimate。这样可以减少不同因子在不同线性化点展开后导致的零空间不一致。
+
+因此：
+
+$$
+\text{VINS-Mono 的边缘化 prior}
+\Rightarrow
+\text{固定 prior 的线性化结构}
+$$
+
+$$
+\text{严格 FEJ}
+\Rightarrow
+\text{更系统地固定相关雅克比的 first estimate}
+$$
 
 ## 12. FEJ 和 OC 方法的区别
 
@@ -574,7 +871,7 @@ $$
 - $\mathbf{J}_{\text{modified}}$ 表示修正后的雅克比；
 - $\mathbf{N}$ 表示不可观子空间基矩阵。
 
-FEJ 更简单。它不一定显式构造 $\mathbf{N}$，而是固定某些关键雅克比在 first estimate 处，从经验和理论上缓解由重线性化造成的不可观性破坏。
+FEJ 更简单。它不一定显式构造 $\mathbf{N}$，而是固定某些关键雅克比在 first estimate 处，从经验和理论上缓解由重线性化造成的不可观性破坏。VINS-Mono 中固定边缘化 prior 的做法只覆盖了其中一部分思想，并不等价于完整 OC 或完整 FEJ。
 
 可以粗略理解为：
 

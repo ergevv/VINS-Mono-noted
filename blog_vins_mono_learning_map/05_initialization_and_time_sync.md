@@ -1,4 +1,4 @@
-# 03 初始化与时间同步：让 VIO 优化从正确的问题开始
+# 05 初始化与时间同步：让 VIO 优化从正确的问题开始
 
 ## 1. 为什么初始化和时间同步要单独讲
 
@@ -209,6 +209,172 @@ $$
 - $2\,\text{vec}(\cdot)$ 是小角度姿态误差近似。
 
 这一步的目的，是先把角度积分修正好。因为姿态错了，后面尺度、重力和速度都会被带偏。
+
+上面的目标函数还可以进一步化成一个小的线性最小二乘问题。设当前预积分使用的陀螺仪零偏为 $\bar{\mathbf{b}}_g$，真实零偏写成：
+
+$$
+\mathbf{b}_g
+=
+\bar{\mathbf{b}}_g
++
+\delta\mathbf{b}_g
+$$
+
+其中：
+
+- $\bar{\mathbf{b}}_g$ 表示当前用于预积分的陀螺仪零偏；
+- $\delta\mathbf{b}_g$ 表示要估计的零偏修正量。
+
+预积分旋转对陀螺仪零偏做一阶近似：
+
+$$
+\Delta\mathbf{q}_{ij}(\mathbf{b}_g)
+\approx
+\hat{\Delta\mathbf{q}}_{ij}
+\otimes
+\delta\mathbf{q}
+\left(
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
+\right)
+$$
+
+其中：
+
+- $\hat{\Delta\mathbf{q}}_{ij}$ 表示在 $\bar{\mathbf{b}}_g$ 下得到的预积分旋转；
+- $\mathbf{J}^{\gamma}_{b_g,ij}$ 表示这段预积分旋转对陀螺仪零偏的 Jacobian；
+- $\delta\mathbf{q}(\cdot)$ 表示由小角度向量构造的小旋转四元数。
+
+希望 IMU 旋转等于视觉旋转：
+
+$$
+\Delta\mathbf{q}_{ij}(\mathbf{b}_g)
+\approx
+\mathbf{q}_{ij}^{\text{vis}}
+$$
+
+代入一阶近似：
+
+$$
+\hat{\Delta\mathbf{q}}_{ij}
+\otimes
+\delta\mathbf{q}
+\left(
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
+\right)
+\approx
+\mathbf{q}_{ij}^{\text{vis}}
+$$
+
+左乘 $\hat{\Delta\mathbf{q}}_{ij}^{-1}$：
+
+$$
+\delta\mathbf{q}
+\left(
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
+\right)
+\approx
+\hat{\Delta\mathbf{q}}_{ij}^{-1}
+\otimes
+\mathbf{q}_{ij}^{\text{vis}}
+$$
+
+定义右侧为旋转误差四元数：
+
+$$
+\mathbf{q}_{err,ij}
+=
+\hat{\Delta\mathbf{q}}_{ij}^{-1}
+\otimes
+\mathbf{q}_{ij}^{\text{vis}}
+$$
+
+当误差很小时：
+
+$$
+\delta\mathbf{q}(\boldsymbol{\phi})
+\approx
+\begin{bmatrix}
+1\\
+\frac{1}{2}\boldsymbol{\phi}
+\end{bmatrix}
+$$
+
+所以：
+
+$$
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
+\approx
+2\,\operatorname{vec}
+\left(
+\mathbf{q}_{err,ij}
+\right)
+$$
+
+这就是线性方程：
+
+$$
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
+=
+\mathbf{e}_{ij}
+$$
+
+其中：
+
+$$
+\mathbf{e}_{ij}
+=
+2\,\operatorname{vec}
+\left(
+\hat{\Delta\mathbf{q}}_{ij}^{-1}
+\otimes
+\mathbf{q}_{ij}^{\text{vis}}
+\right)
+$$
+
+把多段相邻帧的方程堆叠起来：
+
+$$
+\mathbf{A}_g\delta\mathbf{b}_g
+=
+\mathbf{d}_g
+$$
+
+其中：
+
+- $\mathbf{A}_g$ 由每段 $\mathbf{J}^{\gamma}_{b_g,ij}$ 堆叠而成；
+- $\mathbf{d}_g$ 由每段旋转误差 $\mathbf{e}_{ij}$ 堆叠而成，它只是线性方程右端，不是陀螺仪零偏。
+
+最小二乘解为：
+
+$$
+\delta\mathbf{b}_g^{*}
+=
+\arg\min_{\delta\mathbf{b}_g}
+\left\|
+\mathbf{A}_g\delta\mathbf{b}_g-\mathbf{d}_g
+\right\|^2
+$$
+
+也可以写成正规方程：
+
+$$
+\mathbf{A}_g^{\top}\mathbf{A}_g
+\delta\mathbf{b}_g
+=
+\mathbf{A}_g^{\top}\mathbf{d}_g
+$$
+
+求出 $\delta\mathbf{b}_g$ 后，更新：
+
+$$
+\bar{\mathbf{b}}_g
+\leftarrow
+\bar{\mathbf{b}}_g
++
+\delta\mathbf{b}_g
+$$
+
+然后需要用新的陀螺仪零偏重新计算 IMU 预积分。原因是旋转预积分对后面的速度、重力、尺度对齐都有直接影响。
 
 ## 5. 第三步：视觉-惯性对齐
 
@@ -616,6 +782,225 @@ $$
 $$
 
 不同资料中 $\mathbf{A}$ 的具体块形式可能略有差异。有的推导直接使用上面的“位置方程 + 速度方程”；有的推导会把连续两段位置方程组合起来，得到同时含有 $\mathbf{v}_k$、$\mathbf{v}_{k+1}$、$\mathbf{g}$ 和 $s$ 的约束。它们的本质相同：都在利用 IMU 预积分运动模型和无尺度视觉位置之间的一致性，把初始化问题整理成关于速度、重力和尺度的线性最小二乘。
+
+为了和 VINS-Mono 的常见推导形式对齐，下面再把同一个问题写成更具体的 $6$ 维块方程。
+
+设初始化参考系为第一帧相机坐标系 $c_0$。视觉 SFM 给出第 $k$ 帧相机在 $c_0$ 下的无尺度位置：
+
+$$
+\bar{\mathbf{p}}_{c_0c_k}
+$$
+
+其中横线表示“视觉恢复出的无尺度量”。真实相机位置为：
+
+$$
+\mathbf{p}_{c_0c_k}
+=
+s\bar{\mathbf{p}}_{c_0c_k}
+$$
+
+设 IMU 与相机外参为：
+
+$$
+\mathbf{R}_{bc},\quad \mathbf{p}_{bc}
+$$
+
+其中：
+
+- $\mathbf{R}_{bc}$ 表示从相机坐标系到 IMU 机体系的旋转；
+- $\mathbf{p}_{bc}$ 表示相机原点在 IMU 机体系下的位置。
+
+视觉姿态和外参可以得到第 $k$ 帧 IMU 到 $c_0$ 的旋转：
+
+$$
+\mathbf{R}_{c_0b_k}
+=
+\mathbf{R}_{c_0c_k}\mathbf{R}_{bc}^{\top}
+$$
+
+其中 $\mathbf{R}_{c_0c_k}$ 表示第 $k$ 帧相机坐标系到第一帧相机坐标系的旋转。
+
+由于相机原点位置满足：
+
+$$
+\mathbf{p}_{c_0c_k}
+=
+\mathbf{p}_{c_0b_k}
++
+\mathbf{R}_{c_0b_k}\mathbf{p}_{bc}
+$$
+
+所以 IMU 位置为：
+
+$$
+\mathbf{p}_{c_0b_k}
+=
+s\bar{\mathbf{p}}_{c_0c_k}
+-
+\mathbf{R}_{c_0b_k}\mathbf{p}_{bc}
+$$
+
+现在写 IMU 预积分的位移方程：
+
+$$
+\mathbf{p}_{c_0b_{k+1}}
+=
+\mathbf{p}_{c_0b_k}
++
+\mathbf{v}_{c_0b_k}^{c_0}\Delta t_k
++
+\frac{1}{2}\mathbf{g}^{c_0}\Delta t_k^2
++
+\mathbf{R}_{c_0b_k}\boldsymbol{\alpha}_{k,k+1}
+$$
+
+其中：
+
+- $\mathbf{v}_{c_0b_k}^{c_0}$ 表示第 $k$ 帧 IMU 在 $c_0$ 系下的速度；
+- $\mathbf{g}^{c_0}$ 表示 $c_0$ 系下的重力；
+- $\boldsymbol{\alpha}_{k,k+1}$ 表示第 $k$ 帧到第 $k+1$ 帧的位移预积分。
+
+为了得到 VINS 常见的矩阵块形式，左乘 $\mathbf{R}_{c_0b_k}^{\top}$，把方程表达在第 $k$ 帧 IMU 局部系下。定义局部速度：
+
+$$
+\mathbf{v}_{b_k}
+=
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{v}_{c_0b_k}^{c_0}
+$$
+
+也就是第 $k$ 帧速度在第 $k$ 帧 IMU 坐标系下的表达。代入相机位置关系后，位移方程可以整理为：
+
+$$
+-\Delta t_k\mathbf{v}_{b_k}
++
+\frac{1}{2}
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{g}^{c_0}
+\Delta t_k^2
++
+\mathbf{R}_{c_0b_k}^{\top}
+\left(
+\bar{\mathbf{p}}_{c_0c_{k+1}}
+-
+\bar{\mathbf{p}}_{c_0c_k}
+\right)s
+=
+\boldsymbol{\alpha}_{k,k+1}
+-
+\mathbf{p}_{bc}
++
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{R}_{c_0b_{k+1}}
+\mathbf{p}_{bc}
+$$
+
+这个式子每一项的来源如下：
+
+- $-\Delta t_k\mathbf{v}_{b_k}$ 来自把速度项移到左边；
+- $\frac{1}{2}\mathbf{R}_{c_0b_k}^{\top}\mathbf{g}^{c_0}\Delta t_k^2$ 来自重力二阶积分项；
+- $\mathbf{R}_{c_0b_k}^{\top}(\bar{\mathbf{p}}_{c_0c_{k+1}}-\bar{\mathbf{p}}_{c_0c_k})s$ 来自视觉无尺度位移乘尺度；
+- $\boldsymbol{\alpha}_{k,k+1}$ 来自 IMU 位移预积分；
+- $-\mathbf{p}_{bc}+\mathbf{R}_{c_0b_k}^{\top}\mathbf{R}_{c_0b_{k+1}}\mathbf{p}_{bc}$ 来自相机-IMU 杆臂补偿。
+
+再写速度方程：
+
+$$
+\mathbf{v}_{c_0b_{k+1}}^{c_0}
+=
+\mathbf{v}_{c_0b_k}^{c_0}
++
+\mathbf{g}^{c_0}\Delta t_k
++
+\mathbf{R}_{c_0b_k}\boldsymbol{\beta}_{k,k+1}
+$$
+
+左乘 $\mathbf{R}_{c_0b_k}^{\top}$，并使用：
+
+$$
+\mathbf{v}_{c_0b_k}^{c_0}
+=
+\mathbf{R}_{c_0b_k}\mathbf{v}_{b_k}
+$$
+
+$$
+\mathbf{v}_{c_0b_{k+1}}^{c_0}
+=
+\mathbf{R}_{c_0b_{k+1}}\mathbf{v}_{b_{k+1}}
+$$
+
+得到：
+
+$$
+-
+\mathbf{v}_{b_k}
++
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{R}_{c_0b_{k+1}}
+\mathbf{v}_{b_{k+1}}
++
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{g}^{c_0}\Delta t_k
+=
+\boldsymbol{\beta}_{k,k+1}
+$$
+
+其中 $\boldsymbol{\beta}_{k,k+1}$ 是速度预积分。
+
+把位移方程和速度方程合并，就得到每一段相邻帧贡献的 $6$ 维线性方程：
+
+$$
+\begin{bmatrix}
+-\Delta t_k\mathbf{I}_3
+&
+\mathbf{0}_{3\times3}
+&
+\frac{1}{2}
+\mathbf{R}_{c_0b_k}^{\top}
+\Delta t_k^2
+&
+\mathbf{R}_{c_0b_k}^{\top}
+\left(
+\bar{\mathbf{p}}_{c_0c_{k+1}}
+-
+\bar{\mathbf{p}}_{c_0c_k}
+\right)
+\\
+-\mathbf{I}_3
+&
+\mathbf{R}_{c_0b_k}^{\top}\mathbf{R}_{c_0b_{k+1}}
+&
+\mathbf{R}_{c_0b_k}^{\top}\Delta t_k
+&
+\mathbf{0}_{3\times1}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{v}_{b_k}\\
+\mathbf{v}_{b_{k+1}}\\
+\mathbf{g}^{c_0}\\
+s
+\end{bmatrix}
+=
+\begin{bmatrix}
+\boldsymbol{\alpha}_{k,k+1}
+-
+\mathbf{p}_{bc}
++
+\mathbf{R}_{c_0b_k}^{\top}
+\mathbf{R}_{c_0b_{k+1}}
+\mathbf{p}_{bc}\\
+\boldsymbol{\beta}_{k,k+1}
+\end{bmatrix}
+$$
+
+检查这个矩阵的维度：
+
+- 第一行块是 $3$ 维位移约束；
+- 第二行块是 $3$ 维速度约束；
+- 未知量依次是 $\mathbf{v}_{b_k}$、$\mathbf{v}_{b_{k+1}}$、$\mathbf{g}^{c_0}$、$s$；
+- 每一段相邻帧对应一个 $6\times10$ 的局部矩阵，因为 $3+3+3+1=10$。
+
+滑窗内有多段相邻帧时，把这些 $6$ 维约束按对应速度变量的位置放进整体矩阵，就得到全局线性系统。这个形式与前面的通用推导是同一个物理约束，只是变量表达坐标不同：前者把速度放在统一世界系中，后者把每帧速度放在各自 IMU 局部系中。
 
 通过最小二乘求解：
 
