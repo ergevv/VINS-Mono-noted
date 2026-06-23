@@ -23,6 +23,7 @@
 8. [08_fej.md](08_fej.md)：理解边缘化 prior、严格 FEJ 和 VINS-Mono 实际做法的区别。
 9. [09_observability.md](09_observability.md)：理解单目 VIO 的不可观方向，以及 FEJ-like prior 和严格 FEJ 如何帮助一致性。
 10. [10_learning_route.md](10_learning_route.md)：把核心内容压缩成一张学习地图，用于复习和建立全局认知。
+11. [11_consistency_observability_contact.md](11_consistency_observability_contact.md)：进一步理解 consistency、弱可观、边缘化破坏可观性，以及 Contact Constraint 为什么能提高秩。
 
 整组文章的主线是：
 
@@ -48,6 +49,8 @@ $$
 \text{FEJ-like prior 与严格 FEJ}
 \rightarrow
 \text{可观性保持与估计一致性}
+\rightarrow
+\text{弱可观与接触约束秩分析}
 $$
 
 阅读时建议带着一个核心问题：
@@ -65,3 +68,4 @@ PDF 内容对应关系：
 - 边缘化和 FEJ：对应 [07_marginalization.md](07_marginalization.md)、[08_fej.md](08_fej.md)
 - 闭环检测和优化、关键帧策略等系统细节：对应 [06_frontend_loop_and_system_details.md](06_frontend_loop_and_system_details.md)
 - 不可观性、一致性和 yaw 问题：对应 [09_observability.md](09_observability.md)
+- consistency、弱可观和 Contact Constraint 秩分析：对应 [11_consistency_observability_contact.md](11_consistency_observability_contact.md)

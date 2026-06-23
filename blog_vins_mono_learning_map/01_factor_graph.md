@@ -515,9 +515,10 @@ IMU 测量模型为：
 $$
 \hat{\mathbf{a}}_t
 =
-\mathbf{a}_t
-+
-\mathbf{R}_t^\top\mathbf{g}
+\mathbf{R}_t^\top
+\left(
+\mathbf{a}_t^w-\mathbf{g}
+\right)
 +
 \mathbf{b}_{a,t}
 +
@@ -538,15 +539,85 @@ $$
 
 - $t$ 表示连续时间；
 - $\hat{\mathbf{a}}_t$ 表示加速度计测量值；
-- $\mathbf{a}_t$ 表示载体在世界坐标系下的线加速度；
+- $\mathbf{a}_t^w=\ddot{\mathbf{p}}_t$ 表示载体在世界坐标系下的真实线加速度；
 - $\mathbf{R}_t$ 表示从 IMU 坐标系到世界坐标系的旋转矩阵；
-- $\mathbf{g}$ 表示世界坐标系下的重力向量；
+- $\mathbf{g}$ 表示世界坐标系下的重力加速度向量；
 - $\mathbf{b}_{a,t}$ 表示加速度计零偏；
 - $\mathbf{n}_{a,t}$ 表示加速度计白噪声；
 - $\hat{\boldsymbol{\omega}}_t$ 表示陀螺仪测量值；
 - $\boldsymbol{\omega}_t$ 表示真实角速度；
 - $\mathbf{b}_{g,t}$ 表示陀螺仪零偏；
 - $\mathbf{n}_{g,t}$ 表示陀螺仪白噪声。
+
+这里的符号很容易弄反。加速度计测到的不是世界系线加速度 $\mathbf{a}_t^w$ 本身，而是比力，也就是“去掉重力后的加速度”在 IMU 坐标系下的表达：
+
+$$
+\mathbf{f}_t
+=
+\mathbf{R}_t^\top
+\left(
+\mathbf{a}_t^w-\mathbf{g}
+\right)
+$$
+
+因此静止时 $\mathbf{a}_t^w=\mathbf{0}$。如果此时 IMU 坐标系和世界坐标系重合，即 $\mathbf{R}_t=\mathbf{I}$，则：
+
+$$
+\hat{\mathbf{a}}_t
+\approx
+-
+\mathbf{g}
+$$
+
+这正是“加速度计静止时读到重力反方向”的含义。例如若世界系 $z$ 轴向上，重力向量定义为：
+
+$$
+\mathbf{g}
+=
+\begin{bmatrix}
+0\\0\\-9.81
+\end{bmatrix}
+$$
+
+则静止加速度计理想读数为：
+
+$$
+-
+\mathbf{g}
+=
+\begin{bmatrix}
+0\\0\\9.81
+\end{bmatrix}
+$$
+
+反过来，运动方程写成：
+
+$$
+\mathbf{a}_t^w
+=
+\mathbf{R}_t
+\left(
+\hat{\mathbf{a}}_t-\mathbf{b}_{a,t}-\mathbf{n}_{a,t}
+\right)
++
+\mathbf{g}
+$$
+
+所以下面的 IMU 残差中会出现 $-\frac{1}{2}\mathbf{g}\Delta t_{ij}^2$ 和 $-\mathbf{g}\Delta t_{ij}$：它们是在把
+
+$$
+\mathbf{p}_j
+=
+\mathbf{p}_i
++
+\mathbf{v}_i\Delta t_{ij}
++
+\frac{1}{2}\mathbf{g}\Delta t_{ij}^2
++
+\mathbf{R}_i\Delta\mathbf{p}_{ij}
+$$
+
+移项到残差左侧后得到的。
 
 预积分给出从时刻 $i$ 到时刻 $j$ 的相对运动量：
 
