@@ -1148,6 +1148,237 @@ $$
 \text{ 算}
 $$
 
+#### 新进来的因子如何计算 Jacobian
+
+严格 FEJ 中，“新因子”的 Jacobian 不是随便固定，也不是说新因子自己有一个 first estimate。更准确地说：
+
+$$
+\text{新因子的 Jacobian 由它连接的变量的 first estimate 决定。}
+$$
+
+设新加入的因子为：
+
+$$
+\mathbf{r}_k
+=
+\mathbf{r}_k
+\left(
+\mathbf{x}_{\mathcal{S}_k}
+\right)
+$$
+
+其中：
+
+- $\mathbf{r}_k$ 表示新加入的第 $k$ 个残差；
+- $\mathcal{S}_k$ 表示这个因子连接的变量索引集合；
+- $\mathbf{x}_{\mathcal{S}_k}$ 表示这个因子依赖的所有变量。
+
+严格 FEJ 计算该因子的 Jacobian 时，先检查它连接的每个变量是否已经有 first estimate：
+
+$$
+\bar{\mathbf{x}}_s^{FEJ},
+\quad
+s\in\mathcal{S}_k
+$$
+
+其中 $s$ 表示该因子连接的某一个变量索引。
+
+变量的 first estimate 来源分几种情况：
+
+- 如果 $\mathbf{x}_s$ 是旧状态，它在更早进入滑窗时已经保存了 $\bar{\mathbf{x}}_s^{FEJ}$；
+- 如果 $\mathbf{x}_s$ 是刚加入的新帧，就在新帧初始化并进入估计器时立刻保存 $\bar{\mathbf{x}}_s^{FEJ}$；
+- 如果 $\mathbf{x}_s$ 是刚初始化的新特征点，就在特征点第一次被参数化时保存 $\bar{\lambda}_s^{FEJ}$ 或 $\bar{\mathbf{P}}_s^{FEJ}$；
+- 如果某个变量还没有初始化，就不能稳定地构造这个变量对应的 FEJ Jacobian，通常要延迟加入该因子，或者等变量完成初始化。
+
+因此，新因子的 FEJ Jacobian 是：
+
+$$
+\mathbf{J}_k^{FEJ}
+=
+\left.
+\frac{\partial\mathbf{r}_k}
+{\partial\delta\mathbf{x}_{\mathcal{S}_k}}
+\right|_{
+\mathbf{x}_s=\bar{\mathbf{x}}_s^{FEJ},
+\ s\in\mathcal{S}_k
+}
+$$
+
+而它的残差值仍然可以用当前状态计算：
+
+$$
+\mathbf{r}_k^{cur}
+=
+\mathbf{r}_k
+\left(
+\mathbf{x}_{\mathcal{S}_k}^{cur}
+\right)
+$$
+
+最终进入线性系统的是：
+
+$$
+\mathbf{r}_k
+\approx
+\mathbf{r}_k^{cur}
++
+\mathbf{J}_k^{FEJ}
+\delta\mathbf{x}_{\mathcal{S}_k}
+$$
+
+这句话非常重要：
+
+$$
+\text{新因子新不新不关键，关键是它连接的变量各自有没有 first estimate。}
+$$
+
+##### 新视觉因子的例子
+
+假设一个新视觉重投影因子连接：
+
+$$
+\mathbf{x}_i,\quad
+\mathbf{x}_j,\quad
+\lambda_l
+$$
+
+其中：
+
+- $\mathbf{x}_i$ 表示特征点的锚定帧状态；
+- $\mathbf{x}_j$ 表示当前观测帧状态；
+- $\lambda_l$ 表示第 $l$ 个特征点的逆深度。
+
+如果第 $i$ 帧是旧帧，那么它早已有：
+
+$$
+\bar{\mathbf{x}}_i^{FEJ}
+$$
+
+如果第 $j$ 帧是刚进来的新帧，则在它进入滑窗时保存：
+
+$$
+\bar{\mathbf{x}}_j^{FEJ}
+\leftarrow
+\mathbf{x}_j^{init}
+$$
+
+如果特征点 $\lambda_l$ 是刚初始化的，则保存：
+
+$$
+\bar{\lambda}_l^{FEJ}
+\leftarrow
+\lambda_l^{init}
+$$
+
+于是这个新视觉因子的 Jacobian 在严格 FEJ 下为：
+
+$$
+\mathbf{J}_{ij,l}^{FEJ}
+=
+\left.
+\frac{\partial\mathbf{r}_{ij,l}}
+{\partial
+\left[
+\delta\mathbf{x}_i,\,
+\delta\mathbf{x}_j,\,
+\delta\lambda_l
+\right]}
+\right|_{\substack{
+\mathbf{x}_i=\bar{\mathbf{x}}_i^{FEJ},\\
+\mathbf{x}_j=\bar{\mathbf{x}}_j^{FEJ},\\
+\lambda_l=\bar{\lambda}_l^{FEJ}
+}}
+$$
+
+但残差值可以用当前状态：
+
+$$
+\mathbf{r}_{ij,l}^{cur}
+=
+\mathbf{r}_{ij,l}
+\left(
+\mathbf{x}_i^{cur},
+\mathbf{x}_j^{cur},
+\lambda_l^{cur}
+\right)
+$$
+
+所以这个新因子加入系统时，线性化形式是：
+
+$$
+\mathbf{r}_{ij,l}
+\approx
+\mathbf{r}_{ij,l}^{cur}
++
+\mathbf{J}_{ij,l}^{FEJ}
+\begin{bmatrix}
+\delta\mathbf{x}_i\\
+\delta\mathbf{x}_j\\
+\delta\lambda_l
+\end{bmatrix}
+$$
+
+##### 新 IMU 因子的例子
+
+IMU 预积分因子通常连接相邻两帧：
+
+$$
+\mathbf{x}_i,\quad
+\mathbf{x}_{i+1}
+$$
+
+若第 $i+1$ 帧刚加入系统，则先保存：
+
+$$
+\bar{\mathbf{x}}_{i+1}^{FEJ}
+\leftarrow
+\mathbf{x}_{i+1}^{init}
+$$
+
+严格 FEJ 下，新 IMU 因子的 Jacobian 为：
+
+$$
+\mathbf{J}_{imu,i}^{FEJ}
+=
+\left.
+\frac{\partial\mathbf{r}_{imu,i}}
+{\partial
+\left[
+\delta\mathbf{x}_i,\,
+\delta\mathbf{x}_{i+1}
+\right]}
+\right|_{\substack{
+\mathbf{x}_i=\bar{\mathbf{x}}_i^{FEJ},\\
+\mathbf{x}_{i+1}=\bar{\mathbf{x}}_{i+1}^{FEJ}
+}}
+$$
+
+而 IMU 残差值可以用：
+
+$$
+\mathbf{r}_{imu,i}^{cur}
+=
+\mathbf{r}_{imu,i}
+\left(
+\mathbf{x}_i^{cur},
+\mathbf{x}_{i+1}^{cur}
+\right)
+$$
+
+所以新 IMU 因子同样遵循：
+
+$$
+\text{残差看当前状态，Jacobian 看 first estimate。}
+$$
+
+用流程表示就是：
+
+1. 新变量进入系统，保存 first estimate；
+2. 新因子进入系统，找到它连接的变量集合 $\mathcal{S}_k$；
+3. 用 $\bar{\mathbf{x}}_{\mathcal{S}_k}^{FEJ}$ 计算 Jacobian；
+4. 用 $\mathbf{x}_{\mathcal{S}_k}^{cur}$ 计算残差；
+5. 求解增量后只更新 current estimate，不更新 first estimate。
+
 #### 多个变量的因子怎么处理
 
 假设一个视觉重投影因子连接：
@@ -1448,6 +1679,134 @@ $$
 $$
 
 这个取舍很实用，但不等价于严格 FEJ。严格 FEJ 的 consistency 更强，代价是 Jacobian 更不贴近当前状态，可能牺牲更多局部精度，并且需要为所有状态和特征维护 first estimate。
+
+#### 严格 FEJ 对 first estimate 的依赖
+
+严格 FEJ 还有一个很现实的风险：
+
+$$
+\text{如果 first estimate 很差，严格 FEJ 的 Jacobian 会长期在一个较差的点上计算。}
+$$
+
+设真实非线性残差为：
+
+$$
+\mathbf{r}(\mathbf{x})
+$$
+
+普通重线性化在当前状态 $\mathbf{x}^{cur}$ 处使用：
+
+$$
+\mathbf{r}
+\left(
+\mathbf{x}^{cur}\boxplus\delta\mathbf{x}
+\right)
+\approx
+\mathbf{r}
+\left(
+\mathbf{x}^{cur}
+\right)
++
+\mathbf{J}
+\left(
+\mathbf{x}^{cur}
+\right)
+\delta\mathbf{x}
+$$
+
+如果 $\mathbf{x}^{cur}$ 已经接近真实状态，那么这个线性模型通常比较精确。
+
+严格 FEJ 使用：
+
+$$
+\mathbf{r}
+\left(
+\mathbf{x}^{cur}\boxplus\delta\mathbf{x}
+\right)
+\approx
+\mathbf{r}
+\left(
+\mathbf{x}^{cur}
+\right)
++
+\mathbf{J}
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\delta\mathbf{x}
+$$
+
+如果 first estimate 和当前状态差很多：
+
+$$
+\left\|
+\mathbf{x}^{cur}
+\boxminus
+\bar{\mathbf{x}}^{FEJ}
+\right\|
+\text{ 很大}
+$$
+
+那么：
+
+$$
+\mathbf{J}
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\not\approx
+\mathbf{J}
+\left(
+\mathbf{x}^{cur}
+\right)
+$$
+
+此时线性模型可能明显不准。
+
+这会带来几个后果：
+
+- 优化方向可能变差；
+- 收敛速度可能变慢；
+- 局部精度可能下降；
+- 强非线性因子更容易受影响，例如视觉重投影、逆深度、外参、时间偏移；
+- 如果 first estimate 偏差很大，严格 FEJ 可能保持了零空间一致性，却牺牲了较多 accuracy。
+
+所以严格 FEJ 不是“更准”的方法。它更准确的定位是：
+
+$$
+\text{FEJ 主要改善 consistency，不保证最小化每一轮的 nonlinear residual error。}
+$$
+
+也可以说：
+
+$$
+\text{FEJ 防的是估计器过度自信，不是防所有估计误差。}
+$$
+
+这也是 VINS-Mono 更偏向 FEJ-like 的重要原因。它选择：
+
+$$
+\text{marginalization prior 固定}
+\quad
++\quad
+\text{普通视觉 / IMU 因子继续重线性化}
+$$
+
+也就是用一部分 consistency，换取更好的局部优化精度和工程稳定性。
+
+把三种做法放在一起看：
+
+| 方法 | 主要优点 | 主要风险 |
+|---|---|---|
+| 严格 FEJ | 零空间更一致，consistency 更好 | 强依赖 first estimate，初值差时精度和收敛可能变差 |
+| FEJ-like | 工程折中，prior 不反复漂移，普通因子还能重线性化 | consistency 不如严格 FEJ |
+| 普通重线性化 | 当前线性化精度高，非线性优化更自然 | 更容易让不可观方向被错误约束 |
+
+因此，严格 FEJ 的优缺点可以压缩成一句话：
+
+$$
+\text{严格 FEJ 用 accuracy 的一部分代价，换 consistency 的提升。}
+$$
 
 ### 4.5 prior 只约束旧变量，为什么会影响最新变量
 
@@ -2515,7 +2874,43 @@ $$
 
 #### 5.4.1 FEJ / FEJ-like prior
 
-FEJ 的做法是固定 first estimate 处的 Jacobian：
+FEJ 这类方法最容易混淆的地方是：它不是简单地说“某个 Jacobian 固定了”，而是要问：
+
+$$
+\text{哪些因子的 Jacobian 被固定？固定在谁的 first estimate 上？}
+$$
+
+为了说清楚，先把一个非线性因子写成：
+
+$$
+\mathbf{r}_k
+=
+\mathbf{r}_k(\mathbf{x}_{\mathcal{S}_k})
+$$
+
+其中：
+
+- $\mathbf{r}_k$ 表示第 $k$ 个残差；
+- $\mathbf{x}_{\mathcal{S}_k}$ 表示这个因子连接的所有状态块；
+- $\mathcal{S}_k$ 表示这些状态块的索引集合。
+
+普通重线性化会在当前状态处计算 Jacobian：
+
+$$
+\mathbf{J}_k^{cur}
+=
+\left.
+\frac{\partial\mathbf{r}_k}{\partial\delta\mathbf{x}_{\mathcal{S}_k}}
+\right|_{\mathbf{x}_{\mathcal{S}_k}=\mathbf{x}_{\mathcal{S}_k}^{cur}}
+$$
+
+其中：
+
+- $\mathbf{x}^{cur}$ 表示当前估计状态；
+- $\delta\mathbf{x}$ 表示局部扰动量；
+- $\mathbf{J}_k^{cur}$ 表示当前线性化点处的 Jacobian。
+
+FEJ 的核心是固定 first estimate 处的 Jacobian：
 
 $$
 \mathbf{J}
@@ -2523,7 +2918,7 @@ $$
 \mathbf{J}(\bar{\mathbf{x}})
 $$
 
-而不是每次使用当前状态处的 Jacobian：
+其中 $\bar{\mathbf{x}}$ 表示 first estimate。它不是每次使用当前状态处的 Jacobian：
 
 $$
 \mathbf{J}
@@ -2531,7 +2926,7 @@ $$
 \mathbf{J}(\mathbf{x}^{current})
 $$
 
-它的目标是让相关因子共享同一个不可观零空间：
+这样做的目标是让相关因子共享同一个不可观零空间：
 
 $$
 \mathbf{J}(\bar{\mathbf{x}})
@@ -2540,7 +2935,11 @@ $$
 \mathbf{0}
 $$
 
-如果是严格 FEJ，那么规则是：
+其中 $\mathbf{N}(\bar{\mathbf{x}})$ 表示在 first estimate 处表达的不可观子空间。
+
+##### 严格 FEJ：所有相关因子都用 first estimate
+
+严格 FEJ 的规则是：
 
 $$
 \forall k,\quad
@@ -2552,9 +2951,104 @@ $$
 \right)
 $$
 
-其中 $k$ 表示第 $k$ 个因子。也就是说，视觉因子、IMU 因子、边缘化 prior 等所有影响可观性的 Jacobian，都尽量使用对应状态的 first estimate。
+也就是说，视觉因子、IMU 因子、边缘化 prior 等所有影响可观性的 Jacobian，都尽量使用对应状态的 first estimate。
 
-如果是 FEJ-like，那么通常只是部分 Jacobian 被固定。例如 VINS-Mono 更接近：
+但是残差值通常仍然可以用当前状态计算：
+
+$$
+\mathbf{r}_k^{cur}
+=
+\mathbf{r}_k
+\left(
+\mathbf{x}_{\mathcal{S}_k}^{cur}
+\right)
+$$
+
+于是严格 FEJ 的线性化模型是：
+
+$$
+\mathbf{r}_k
+\left(
+\mathbf{x}^{cur}\boxplus\delta\mathbf{x}
+\right)
+\approx
+\mathbf{r}_k
+\left(
+\mathbf{x}^{cur}
+\right)
++
+\mathbf{J}_k
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\delta\mathbf{x}
+$$
+
+注意这个式子不是标准 Taylor 展开。标准 Taylor 展开要求残差和 Jacobian 在同一个点计算；严格 FEJ 则有意让 Jacobian 固定在 first estimate，以换取零空间一致性。
+
+如果所有相关因子都满足：
+
+$$
+\mathbf{J}_k
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\mathbf{N}
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\approx
+\mathbf{0}
+$$
+
+那么总信息矩阵：
+
+$$
+\mathbf{H}^{FEJ}
+=
+\sum_k
+\mathbf{J}_k^\top
+\mathbf{\Omega}_k
+\mathbf{J}_k
+$$
+
+也会满足：
+
+$$
+\mathbf{H}^{FEJ}
+\mathbf{N}
+\left(
+\bar{\mathbf{x}}^{FEJ}
+\right)
+\approx
+\mathbf{0}
+$$
+
+这就是严格 FEJ 的重点：不是某一个因子单独一致，而是所有相关因子在同一套零空间下共同一致。
+
+对新加入的因子也是同样规则。新因子连接的变量集合为 $\mathcal{S}_k$ 时，严格 FEJ 使用：
+
+$$
+\mathbf{J}_k^{FEJ}
+=
+\left.
+\frac{\partial\mathbf{r}_k}
+{\partial\delta\mathbf{x}_{\mathcal{S}_k}}
+\right|_{
+\mathbf{x}_s=\bar{\mathbf{x}}_s^{FEJ},
+\ s\in\mathcal{S}_k
+}
+$$
+
+也就是说，新因子并不是用当前状态算 Jacobian，而是用它连接的每个变量各自的 first estimate。若某个变量刚加入系统，就先保存它的 first estimate，再用这个值参与新因子的 Jacobian 计算。
+
+这也解释了严格 FEJ 的主要风险：如果这些 first estimate 本身偏差较大，那么新因子的 Jacobian 也会长期受这个偏差影响。
+
+##### FEJ-like：只固定一部分因子
+
+FEJ-like 则通常只是部分 Jacobian 被固定。
+
+例如 VINS-Mono 更接近：
 
 $$
 \mathbf{J}_{prior}
@@ -2565,7 +3059,9 @@ $$
 \right)
 $$
 
-但普通滑窗内因子仍然使用：
+也就是边缘化 prior 固定在形成 prior 时的线性化点 $\bar{\mathbf{x}}_{marg}$。
+
+但普通滑窗内因子仍然使用当前状态：
 
 $$
 \mathbf{J}_{vision}
@@ -2585,21 +3081,461 @@ $$
 \right)
 $$
 
-其中 $\bar{\mathbf{x}}_{marg}$ 表示边缘化 prior 形成时的线性化点。这样做比完全不固定 prior 更一致，但比严格 FEJ 保留了更多当前线性化精度。
+所以 FEJ-like 的结构是：
 
-优点是：
+$$
+\text{一部分 Jacobian 使用旧线性化点}
+\quad
++\quad
+\text{一部分 Jacobian 使用当前线性化点}
+$$
 
-- 工程上相对容易实现；
-- 能缓解边缘化 prior 和当前因子零空间不一致；
-- 能减少不可观方向上的虚假信息。
+问题在于：不同线性化点下的不可观子空间可能不是同一个。
 
-缺点是：
+边缘化 prior 可能满足：
 
-- fixed Jacobian 不一定是当前状态处最精确的 Jacobian；
-- first estimate 偏差较大时，线性化误差会增加；
-- 如果只固定 marginalization prior，而普通视觉或 IMU 因子仍然按当前状态重线性化，那只是 FEJ-like，不是严格 FEJ。
+$$
+\mathbf{J}_{prior}
+\left(
+\bar{\mathbf{x}}_{marg}
+\right)
+\mathbf{N}
+\left(
+\bar{\mathbf{x}}_{marg}
+\right)
+=
+\mathbf{0}
+$$
 
-可以理解为：
+而新视觉或 IMU 因子可能满足：
+
+$$
+\mathbf{J}_{new}
+\left(
+\mathbf{x}^{cur}
+\right)
+\mathbf{N}
+\left(
+\mathbf{x}^{cur}
+\right)
+=
+\mathbf{0}
+$$
+
+但是这两个零空间未必相同：
+
+$$
+\mathbf{N}
+\left(
+\bar{\mathbf{x}}_{marg}
+\right)
+\neq
+\mathbf{N}
+\left(
+\mathbf{x}^{cur}
+\right)
+$$
+
+于是组合起来可能没有公共零空间：
+
+$$
+\mathcal{N}
+\left(
+\mathbf{H}_{prior}
++
+\mathbf{H}_{new}
+\right)
+\neq
+\mathcal{N}_{true}
+$$
+
+这就是 FEJ-like 比严格 FEJ 弱的地方。
+
+##### 一个具体数值例子：严格 FEJ 保留零空间，FEJ-like 可能错误满秩
+
+用一个二维状态做最小例子：
+
+$$
+\mathbf{x}
+=
+\begin{bmatrix}
+x_1\\
+x_2
+\end{bmatrix}
+$$
+
+假设系统真实存在一个不可观方向。在线性化点 $\bar{\mathbf{x}}$ 处，这个方向为：
+
+$$
+\mathbf{n}_0
+=
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}
+$$
+
+它表示两个变量一起同向移动。例如在相对位移问题里，这对应全局平移。
+
+现在有两个因子：
+
+- 一个旧 prior 因子；
+- 一个新加入的普通因子。
+
+先看严格 FEJ。因为两个因子的 Jacobian 都使用同一个 first estimate，所以它们可以共享同一个零空间。假设两个 Jacobian 都是：
+
+$$
+\mathbf{J}_{prior}^{FEJ}
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+$$
+
+$$
+\mathbf{J}_{new}^{FEJ}
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+$$
+
+检查不可观方向：
+
+$$
+\mathbf{J}_{prior}^{FEJ}\mathbf{n}_0
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}
+=
+0
+$$
+
+$$
+\mathbf{J}_{new}^{FEJ}\mathbf{n}_0
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}
+=
+0
+$$
+
+所以两个因子都不约束 $\mathbf{n}_0$。
+
+令两个因子的权重都为 $1$，总 Hessian 为：
+
+$$
+\mathbf{H}^{FEJ}
+=
+\left(
+\mathbf{J}_{prior}^{FEJ}
+\right)^\top
+\mathbf{J}_{prior}^{FEJ}
++
+\left(
+\mathbf{J}_{new}^{FEJ}
+\right)^\top
+\mathbf{J}_{new}^{FEJ}
+$$
+
+也就是：
+
+$$
+\mathbf{H}^{FEJ}
+=
+2
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+=
+\begin{bmatrix}
+2 & -2\\
+-2 & 2
+\end{bmatrix}
+$$
+
+它的行列式为：
+
+$$
+\det
+\left(
+\mathbf{H}^{FEJ}
+\right)
+=
+2\cdot2-(-2)^2
+=
+0
+$$
+
+因此 $\mathbf{H}^{FEJ}$ 仍然是奇异的，仍然保留一个零空间。并且：
+
+$$
+\mathbf{H}^{FEJ}\mathbf{n}_0
+=
+\mathbf{0}
+$$
+
+这表示不可观方向没有被错误约束。
+
+再看 FEJ-like。旧 prior 仍然固定在旧线性化点：
+
+$$
+\mathbf{J}_{prior}
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+$$
+
+但新因子按当前状态重线性化。假设由于当前线性化点变化，新因子的零空间方向变成：
+
+$$
+\mathbf{n}_{cur}
+=
+\begin{bmatrix}
+1\\
+1+\epsilon
+\end{bmatrix}
+$$
+
+其中 $\epsilon$ 是一个很小但非零的数，表示当前零空间表达和旧零空间表达之间出现了偏差。
+
+为了让新因子在当前线性化点下仍然“不约束自己的不可观方向”，可以设：
+
+$$
+\mathbf{J}_{new}^{cur}
+=
+\begin{bmatrix}
+1+\epsilon & -1
+\end{bmatrix}
+$$
+
+因为：
+
+$$
+\mathbf{J}_{new}^{cur}
+\mathbf{n}_{cur}
+=
+\begin{bmatrix}
+1+\epsilon & -1
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1+\epsilon
+\end{bmatrix}
+=
+0
+$$
+
+也就是说，新因子单独看没有错：它在自己的当前零空间下是正确的。
+
+但是旧 prior 对当前零空间不再为零：
+
+$$
+\mathbf{J}_{prior}
+\mathbf{n}_{cur}
+=
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1+\epsilon
+\end{bmatrix}
+=
+-\epsilon
+\neq
+0
+$$
+
+同样，新因子对旧零空间也不再为零：
+
+$$
+\mathbf{J}_{new}^{cur}
+\mathbf{n}_0
+=
+\begin{bmatrix}
+1+\epsilon & -1
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}
+=
+\epsilon
+\neq
+0
+$$
+
+这就是零空间不一致。
+
+此时总 Hessian 为：
+
+$$
+\mathbf{H}^{like}
+=
+\mathbf{J}_{prior}^{\top}\mathbf{J}_{prior}
++
+\left(
+\mathbf{J}_{new}^{cur}
+\right)^{\top}
+\mathbf{J}_{new}^{cur}
+$$
+
+代入：
+
+$$
+\mathbf{H}^{like}
+=
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}
+\begin{bmatrix}
+1 & -1
+\end{bmatrix}
++
+\begin{bmatrix}
+1+\epsilon\\
+-1
+\end{bmatrix}
+\begin{bmatrix}
+1+\epsilon & -1
+\end{bmatrix}
+$$
+
+得到：
+
+$$
+\mathbf{H}^{like}
+=
+\begin{bmatrix}
+2+2\epsilon+\epsilon^2 & -2-\epsilon\\
+-2-\epsilon & 2
+\end{bmatrix}
+$$
+
+它的行列式是：
+
+$$
+\det
+\left(
+\mathbf{H}^{like}
+\right)
+=
+\epsilon^2
+$$
+
+只要：
+
+$$
+\epsilon\neq0
+$$
+
+就有：
+
+$$
+\det
+\left(
+\mathbf{H}^{like}
+\right)
+>
+0
+$$
+
+这说明 $\mathbf{H}^{like}$ 从奇异矩阵变成了满秩矩阵。可是这个系统理论上应该还有一个不可观方向。满秩意味着系统错误地认为两个方向都可观，于是产生了虚假信息。
+
+这个例子说明：
+
+$$
+\text{每个因子单独看都可能“合理”，但它们的零空间不一致，组合后就会错误增加秩。}
+$$
+
+严格 FEJ 的作用，就是尽量避免这种不一致：
+
+$$
+\mathbf{J}_{prior}^{FEJ}\mathbf{n}_0=0,
+\quad
+\mathbf{J}_{new}^{FEJ}\mathbf{n}_0=0
+$$
+
+FEJ-like 只固定 prior，因此更像：
+
+$$
+\mathbf{J}_{prior}\mathbf{n}_0=0,
+\quad
+\mathbf{J}_{new}^{cur}\mathbf{n}_{cur}=0
+$$
+
+它们各自有零空间，但未必是同一个零空间。
+
+这个例子不是说 VINS-Mono 的真实视觉或 IMU Jacobian 就长成上面的二维矩阵。它只是抽象出一个核心现象：
+
+$$
+\text{不可观方向的坐标表达会随线性化点变化。}
+$$
+
+在 VIO 中，全局 yaw、姿态-位置耦合方向、特征点和相机位姿共同变化的 gauge 方向，都可能随当前状态改变。于是旧 prior 记住的是旧线性化点下的零空间，新视觉或 IMU 因子看到的是当前线性化点下的零空间。二者只要差一点点，就可能像上面的 $\epsilon$ 一样，给本来不可观的方向注入小但非零的信息。
+
+##### 回到 VINS-Mono
+
+VINS-Mono 的做法更接近 FEJ-like，因为：
+
+$$
+\text{marginalization prior 固定}
+$$
+
+但：
+
+$$
+\text{视觉重投影因子和 IMU 因子仍会按当前状态重线性化}
+$$
+
+所以它能缓解一部分边缘化 prior 带来的 consistency 问题，但不是严格 FEJ。
+
+严格 FEJ 更一致，但代价也更明显：
+
+- 要给每个状态和特征维护 first estimate；
+- 普通视觉和 IMU Jacobian 不再是当前状态处最精确的 Jacobian；
+- 如果 first estimate 本身较差，固定 Jacobian 会引入较大的线性化误差；
+- 工程侵入更大，尤其对复杂滑窗后端、外参、时间偏移、多传感器因子更麻烦。
+
+FEJ-like 的好处是工程折中：
+
+- prior 固定，避免历史信息反复漂移；
+- 普通因子仍重线性化，优化精度和收敛性更好；
+- 实现成本较低。
+
+它的代价是 consistency 不如 strict FEJ：
+
+$$
+\text{FEJ-like}
+\Rightarrow
+\text{只缓解零空间不一致，不保证完全消除零空间不一致}
+$$
+
+最后把二者放在一起看：
+
+| 方法 | 固定哪些 Jacobian | 零空间一致性 | 当前线性化精度 | 工程代价 |
+|---|---|---|---|---|
+| 严格 FEJ | 视觉、IMU、prior 等相关因子都尽量用 first estimate | 更强 | 较弱 | 更高 |
+| FEJ-like | 通常只固定边缘化 prior 或部分因子 | 中等，只能缓解 | 较强 | 较低 |
+
+所以可以理解为：
 
 $$
 \text{FEJ}
@@ -3833,6 +4769,22 @@ $$
 $$
 
 也就是所有相关因子的 Jacobian 都尽量用 first estimate 计算。VINS-Mono 更接近 FEJ-like：边缘化 prior 固定旧线性化点，但普通视觉和 IMU 因子仍然按当前状态重线性化。
+
+新因子加入时也遵循同样规则：它的 Jacobian 不是由“新因子自己的 first estimate”决定，而是由它连接的变量的 first estimate 决定：
+
+$$
+\mathbf{J}_k^{FEJ}
+=
+\left.
+\frac{\partial\mathbf{r}_k}
+{\partial\delta\mathbf{x}_{\mathcal{S}_k}}
+\right|_{
+\mathbf{x}_s=\bar{\mathbf{x}}_s^{FEJ},
+\ s\in\mathcal{S}_k
+}
+$$
+
+因此严格 FEJ 的主要代价也很明确：如果 first estimate 很差，后续新因子的 Jacobian 也会长期受这个错误参考点影响。FEJ 改善的是 consistency，不保证每次线性化都最准确。
 
 ### 13.2 为什么边缘化会破坏可观性？
 
