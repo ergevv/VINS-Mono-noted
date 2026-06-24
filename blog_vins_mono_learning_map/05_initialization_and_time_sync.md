@@ -5,8 +5,7 @@
 前两篇已经说明，VIO 可以被写成一个因子图优化问题：
 
 $$
-\mathcal{X}^{*}
-=
+\mathcal{X}^{*} =
 \arg\min_{\mathcal{X}}
 \sum_i
 \left\|
@@ -68,16 +67,11 @@ $$
 可以把初始化理解成下面这条链：
 
 $$
-\text{视觉相对运动}
-\rightarrow
-\text{无尺度 SFM}
-\rightarrow
-\text{陀螺仪零偏校正}
-\rightarrow
-\text{视觉-惯性对齐}
-\rightarrow
-\text{尺度、重力、速度}
-\rightarrow
+\text{视觉相对运动} \rightarrow
+\text{无尺度 SFM} \rightarrow
+\text{陀螺仪零偏校正} \rightarrow
+\text{视觉-惯性对齐} \rightarrow
+\text{尺度、重力、速度} \rightarrow
 \text{进入非线性优化}
 $$
 
@@ -86,8 +80,7 @@ $$
 单目相机首先可以通过多帧特征匹配建立几何关系。对于两帧图像，如果有足够多的匹配点，可以估计本质矩阵：
 
 $$
-\mathbf{E}
-=
+\mathbf{E} =
 [\mathbf{t}]_{\times}\mathbf{R}
 $$
 
@@ -103,8 +96,7 @@ $$
 $$
 \bar{\mathbf{u}}_2^{\top}
 \mathbf{E}
-\bar{\mathbf{u}}_1
-=
+\bar{\mathbf{u}}_1 =
 0
 $$
 
@@ -116,8 +108,7 @@ $$
 单目几何能恢复 $\mathbf{R}$ 和 $\mathbf{t}$ 的方向，但不能恢复 $\mathbf{t}$ 的真实长度。也就是说，如果视觉恢复出的平移为 $\tilde{\mathbf{t}}$，真实平移可以写成：
 
 $$
-\mathbf{t}
-=
+\mathbf{t} =
 s\tilde{\mathbf{t}}
 $$
 
@@ -149,12 +140,9 @@ $$
 陀螺仪测量模型为：
 
 $$
-\hat{\boldsymbol{\omega}}_t
-=
-\boldsymbol{\omega}_t
-+
-\mathbf{b}_g
-+
+\hat{\boldsymbol{\omega}}_t =
+\boldsymbol{\omega}_t +
+\mathbf{b}_g +
 \mathbf{n}_g
 $$
 
@@ -176,8 +164,7 @@ $$
 视觉也能提供相邻帧之间的相对旋转：
 
 $$
-\mathbf{q}_{ij}^{\text{vis}}
-=
+\mathbf{q}_{ij}^{\text{vis}} =
 \left(\mathbf{q}_i^{\text{vis}}\right)^{-1}
 \otimes
 \mathbf{q}_j^{\text{vis}}
@@ -213,10 +200,8 @@ $$
 上面的目标函数还可以进一步化成一个小的线性最小二乘问题。设当前预积分使用的陀螺仪零偏为 $\bar{\mathbf{b}}_g$，真实零偏写成：
 
 $$
-\mathbf{b}_g
-=
-\bar{\mathbf{b}}_g
-+
+\mathbf{b}_g =
+\bar{\mathbf{b}}_g +
 \delta\mathbf{b}_g
 $$
 
@@ -228,8 +213,7 @@ $$
 预积分旋转对陀螺仪零偏做一阶近似：
 
 $$
-\Delta\mathbf{q}_{ij}(\mathbf{b}_g)
-\approx
+\Delta\mathbf{q}_{ij}(\mathbf{b}_g) \approx
 \hat{\Delta\mathbf{q}}_{ij}
 \otimes
 \delta\mathbf{q}
@@ -247,8 +231,7 @@ $$
 希望 IMU 旋转等于视觉旋转：
 
 $$
-\Delta\mathbf{q}_{ij}(\mathbf{b}_g)
-\approx
+\Delta\mathbf{q}_{ij}(\mathbf{b}_g) \approx
 \mathbf{q}_{ij}^{\text{vis}}
 $$
 
@@ -260,8 +243,7 @@ $$
 \delta\mathbf{q}
 \left(
 \mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
-\right)
-\approx
+\right) \approx
 \mathbf{q}_{ij}^{\text{vis}}
 $$
 
@@ -271,8 +253,7 @@ $$
 \delta\mathbf{q}
 \left(
 \mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
-\right)
-\approx
+\right) \approx
 \hat{\Delta\mathbf{q}}_{ij}^{-1}
 \otimes
 \mathbf{q}_{ij}^{\text{vis}}
@@ -281,8 +262,7 @@ $$
 定义右侧为旋转误差四元数：
 
 $$
-\mathbf{q}_{err,ij}
-=
+\mathbf{q}_{err,ij} =
 \hat{\Delta\mathbf{q}}_{ij}^{-1}
 \otimes
 \mathbf{q}_{ij}^{\text{vis}}
@@ -291,8 +271,7 @@ $$
 当误差很小时：
 
 $$
-\delta\mathbf{q}(\boldsymbol{\phi})
-\approx
+\delta\mathbf{q}(\boldsymbol{\phi}) \approx
 \begin{bmatrix}
 1\\
 \frac{1}{2}\boldsymbol{\phi}
@@ -302,8 +281,7 @@ $$
 所以：
 
 $$
-\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
-\approx
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g \approx
 2\,\operatorname{vec}
 \left(
 \mathbf{q}_{err,ij}
@@ -313,16 +291,14 @@ $$
 这就是线性方程：
 
 $$
-\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g
-=
+\mathbf{J}^{\gamma}_{b_g,ij}\delta\mathbf{b}_g =
 \mathbf{e}_{ij}
 $$
 
 其中：
 
 $$
-\mathbf{e}_{ij}
-=
+\mathbf{e}_{ij} =
 2\,\operatorname{vec}
 \left(
 \hat{\Delta\mathbf{q}}_{ij}^{-1}
@@ -334,8 +310,7 @@ $$
 把多段相邻帧的方程堆叠起来：
 
 $$
-\mathbf{A}_g\delta\mathbf{b}_g
-=
+\mathbf{A}_g\delta\mathbf{b}_g =
 \mathbf{d}_g
 $$
 
@@ -347,8 +322,7 @@ $$
 最小二乘解为：
 
 $$
-\delta\mathbf{b}_g^{*}
-=
+\delta\mathbf{b}_g^{*} =
 \arg\min_{\delta\mathbf{b}_g}
 \left\|
 \mathbf{A}_g\delta\mathbf{b}_g-\mathbf{d}_g
@@ -359,18 +333,15 @@ $$
 
 $$
 \mathbf{A}_g^{\top}\mathbf{A}_g
-\delta\mathbf{b}_g
-=
+\delta\mathbf{b}_g =
 \mathbf{A}_g^{\top}\mathbf{d}_g
 $$
 
 求出 $\delta\mathbf{b}_g$ 后，更新：
 
 $$
-\bar{\mathbf{b}}_g
-\leftarrow
-\bar{\mathbf{b}}_g
-+
+\bar{\mathbf{b}}_g \leftarrow
+\bar{\mathbf{b}}_g +
 \delta\mathbf{b}_g
 $$
 
@@ -383,24 +354,17 @@ $$
 IMU 离散运动模型可以写成：
 
 $$
-\mathbf{p}_{j}
-=
-\mathbf{p}_{i}
-+
-\mathbf{v}_{i}\Delta t_{ij}
-+
-\frac{1}{2}\mathbf{g}\Delta t_{ij}^{2}
-+
+\mathbf{p}_{j} =
+\mathbf{p}_{i} +
+\mathbf{v}_{i}\Delta t_{ij} +
+\frac{1}{2}\mathbf{g}\Delta t_{ij}^{2} +
 \mathbf{R}_{i}\Delta\mathbf{p}_{ij}
 $$
 
 $$
-\mathbf{v}_{j}
-=
-\mathbf{v}_{i}
-+
-\mathbf{g}\Delta t_{ij}
-+
+\mathbf{v}_{j} =
+\mathbf{v}_{i} +
+\mathbf{g}\Delta t_{ij} +
 \mathbf{R}_{i}\Delta\mathbf{v}_{ij}
 $$
 
@@ -417,8 +381,7 @@ $$
 视觉给出的是无尺度位置：
 
 $$
-\mathbf{p}_{c,k}
-=
+\mathbf{p}_{c,k} =
 s\tilde{\mathbf{p}}_{c,k}
 $$
 
@@ -431,10 +394,8 @@ $$
 如果考虑相机和 IMU 外参：
 
 $$
-\mathbf{p}_{c,k}
-=
-\mathbf{p}_{i,k}
-+
+\mathbf{p}_{c,k} =
+\mathbf{p}_{i,k} +
 \mathbf{R}_{i,k}\mathbf{p}_{ic}
 $$
 
@@ -447,8 +408,7 @@ $$
 现在开始推导视觉-惯性对齐的线性方程。为了让符号更清楚，先把相邻两帧记为 $k$ 和 $k+1$，并定义：
 
 $$
-\Delta t_k
-=
+\Delta t_k =
 t_{k+1}-t_k
 $$
 
@@ -460,14 +420,10 @@ $$
 IMU 位置递推方程为：
 
 $$
-\mathbf{p}_{i,k+1}
-=
-\mathbf{p}_{i,k}
-+
-\mathbf{v}_k\Delta t_k
-+
-\frac{1}{2}\mathbf{g}\Delta t_k^2
-+
+\mathbf{p}_{i,k+1} =
+\mathbf{p}_{i,k} +
+\mathbf{v}_k\Delta t_k +
+\frac{1}{2}\mathbf{g}\Delta t_k^2 +
 \mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
 $$
 
@@ -482,52 +438,41 @@ $$
 把未知项放在左边，已知预积分项放在右边：
 
 $$
-\mathbf{p}_{i,k+1}
--
-\mathbf{p}_{i,k}
--
-\mathbf{v}_k\Delta t_k
--
-\frac{1}{2}\mathbf{g}\Delta t_k^2
-=
+\mathbf{p}_{i,k+1} -
+\mathbf{p}_{i,k} -
+\mathbf{v}_k\Delta t_k -
+\frac{1}{2}\mathbf{g}\Delta t_k^2 =
 \mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
 $$
 
 视觉 SFM 给出的是相机的无尺度位置 $\tilde{\mathbf{p}}_{c,k}$，真实相机位置为：
 
 $$
-\mathbf{p}_{c,k}
-=
+\mathbf{p}_{c,k} =
 s\tilde{\mathbf{p}}_{c,k}
 $$
 
 相机和 IMU 的位置关系为：
 
 $$
-\mathbf{p}_{c,k}
-=
-\mathbf{p}_{i,k}
-+
+\mathbf{p}_{c,k} =
+\mathbf{p}_{i,k} +
 \mathbf{R}_{i,k}\mathbf{p}_{ic}
 $$
 
 因此 IMU 位置可以由视觉位置和外参写成：
 
 $$
-\mathbf{p}_{i,k}
-=
-s\tilde{\mathbf{p}}_{c,k}
--
+\mathbf{p}_{i,k} =
+s\tilde{\mathbf{p}}_{c,k} -
 \mathbf{R}_{i,k}\mathbf{p}_{ic}
 $$
 
 同理：
 
 $$
-\mathbf{p}_{i,k+1}
-=
-s\tilde{\mathbf{p}}_{c,k+1}
--
+\mathbf{p}_{i,k+1} =
+s\tilde{\mathbf{p}}_{c,k+1} -
 \mathbf{R}_{i,k+1}\mathbf{p}_{ic}
 $$
 
@@ -535,21 +480,15 @@ $$
 
 $$
 \left(
-s\tilde{\mathbf{p}}_{c,k+1}
--
+s\tilde{\mathbf{p}}_{c,k+1} -
 \mathbf{R}_{i,k+1}\mathbf{p}_{ic}
-\right)
--
+\right) -
 \left(
-s\tilde{\mathbf{p}}_{c,k}
--
+s\tilde{\mathbf{p}}_{c,k} -
 \mathbf{R}_{i,k}\mathbf{p}_{ic}
-\right)
--
-\mathbf{v}_k\Delta t_k
--
-\frac{1}{2}\mathbf{g}\Delta t_k^2
-=
+\right) -
+\mathbf{v}_k\Delta t_k -
+\frac{1}{2}\mathbf{g}\Delta t_k^2 =
 \mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
 $$
 
@@ -558,20 +497,14 @@ $$
 $$
 s
 \left(
-\tilde{\mathbf{p}}_{c,k+1}
--
+\tilde{\mathbf{p}}_{c,k+1} -
 \tilde{\mathbf{p}}_{c,k}
-\right)
--
-\mathbf{v}_k\Delta t_k
--
-\frac{1}{2}\mathbf{g}\Delta t_k^2
-=
-\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
-+
+\right) -
+\mathbf{v}_k\Delta t_k -
+\frac{1}{2}\mathbf{g}\Delta t_k^2 =
+\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1} +
 \left(
-\mathbf{R}_{i,k+1}
--
+\mathbf{R}_{i,k+1} -
 \mathbf{R}_{i,k}
 \right)
 \mathbf{p}_{ic}
@@ -580,8 +513,7 @@ $$
 这个式子已经是关于 $s$、$\mathbf{v}_k$、$\mathbf{g}$ 的线性方程。把未知量按顺序写成：
 
 $$
-\mathbf{y}
-=
+\mathbf{y} =
 \left[
 \mathbf{v}_0,\mathbf{v}_1,\dots,\mathbf{v}_N,\,
 \mathbf{g},\,
@@ -614,13 +546,10 @@ $$
 &
 \tilde{\mathbf{p}}_{c,k+1}-\tilde{\mathbf{p}}_{c,k}
 \end{bmatrix}
-\mathbf{y}
-=
-\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
-+
+\mathbf{y} =
+\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1} +
 \left(
-\mathbf{R}_{i,k+1}
--
+\mathbf{R}_{i,k+1} -
 \mathbf{R}_{i,k}
 \right)
 \mathbf{p}_{ic}
@@ -647,24 +576,18 @@ $$
 仅使用位置递推方程，也可以约束速度、重力和尺度。为了让相邻速度之间也被约束起来，还可以使用 IMU 速度递推方程：
 
 $$
-\mathbf{v}_{k+1}
-=
-\mathbf{v}_k
-+
-\mathbf{g}\Delta t_k
-+
+\mathbf{v}_{k+1} =
+\mathbf{v}_k +
+\mathbf{g}\Delta t_k +
 \mathbf{R}_{i,k}\Delta\mathbf{v}_{k,k+1}
 $$
 
 整理为：
 
 $$
-\mathbf{v}_{k+1}
--
-\mathbf{v}_k
--
-\mathbf{g}\Delta t_k
-=
+\mathbf{v}_{k+1} -
+\mathbf{v}_k -
+\mathbf{g}\Delta t_k =
 \mathbf{R}_{i,k}\Delta\mathbf{v}_{k,k+1}
 $$
 
@@ -688,8 +611,7 @@ $$
 &
 \mathbf{0}_{3\times1}
 \end{bmatrix}
-\mathbf{y}
-=
+\mathbf{y} =
 \mathbf{R}_{i,k}\Delta\mathbf{v}_{k,k+1}
 $$
 
@@ -703,8 +625,7 @@ $$
 把所有相邻帧的这些方程堆叠起来，就得到整体线性方程：
 
 $$
-\mathbf{A}\mathbf{y}
-=
+\mathbf{A}\mathbf{y} =
 \mathbf{b}
 $$
 
@@ -716,35 +637,29 @@ $$
 更具体地说，每一段相邻帧 $k\rightarrow k+1$ 至少可以贡献两类 $3$ 维方程：
 
 $$
-\mathbf{A}_{p,k}\mathbf{y}
-=
+\mathbf{A}_{p,k}\mathbf{y} =
 \mathbf{b}_{p,k}
 $$
 
 $$
-\mathbf{A}_{v,k}\mathbf{y}
-=
+\mathbf{A}_{v,k}\mathbf{y} =
 \mathbf{b}_{v,k}
 $$
 
 其中：
 
 $$
-\mathbf{b}_{p,k}
-=
-\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1}
-+
+\mathbf{b}_{p,k} =
+\mathbf{R}_{i,k}\Delta\mathbf{p}_{k,k+1} +
 \left(
-\mathbf{R}_{i,k+1}
--
+\mathbf{R}_{i,k+1} -
 \mathbf{R}_{i,k}
 \right)
 \mathbf{p}_{ic}
 $$
 
 $$
-\mathbf{b}_{v,k}
-=
+\mathbf{b}_{v,k} =
 \mathbf{R}_{i,k}\Delta\mathbf{v}_{k,k+1}
 $$
 
@@ -760,8 +675,7 @@ $$
 \mathbf{A}_{p,N-1}\\
 \mathbf{A}_{v,N-1}
 \end{bmatrix}
-\mathbf{y}
-=
+\mathbf{y} =
 \begin{bmatrix}
 \mathbf{b}_{p,0}\\
 \mathbf{b}_{v,0}\\
@@ -776,8 +690,7 @@ $$
 也就是：
 
 $$
-\mathbf{A}\mathbf{y}
-=
+\mathbf{A}\mathbf{y} =
 \mathbf{b}
 $$
 
@@ -794,8 +707,7 @@ $$
 其中横线表示“视觉恢复出的无尺度量”。真实相机位置为：
 
 $$
-\mathbf{p}_{c_0c_k}
-=
+\mathbf{p}_{c_0c_k} =
 s\bar{\mathbf{p}}_{c_0c_k}
 $$
 
@@ -813,8 +725,7 @@ $$
 视觉姿态和外参可以得到第 $k$ 帧 IMU 到 $c_0$ 的旋转：
 
 $$
-\mathbf{R}_{c_0b_k}
-=
+\mathbf{R}_{c_0b_k} =
 \mathbf{R}_{c_0c_k}\mathbf{R}_{bc}^{\top}
 $$
 
@@ -823,34 +734,26 @@ $$
 由于相机原点位置满足：
 
 $$
-\mathbf{p}_{c_0c_k}
-=
-\mathbf{p}_{c_0b_k}
-+
+\mathbf{p}_{c_0c_k} =
+\mathbf{p}_{c_0b_k} +
 \mathbf{R}_{c_0b_k}\mathbf{p}_{bc}
 $$
 
 所以 IMU 位置为：
 
 $$
-\mathbf{p}_{c_0b_k}
-=
-s\bar{\mathbf{p}}_{c_0c_k}
--
+\mathbf{p}_{c_0b_k} =
+s\bar{\mathbf{p}}_{c_0c_k} -
 \mathbf{R}_{c_0b_k}\mathbf{p}_{bc}
 $$
 
 现在写 IMU 预积分的位移方程：
 
 $$
-\mathbf{p}_{c_0b_{k+1}}
-=
-\mathbf{p}_{c_0b_k}
-+
-\mathbf{v}_{c_0b_k}^{c_0}\Delta t_k
-+
-\frac{1}{2}\mathbf{g}^{c_0}\Delta t_k^2
-+
+\mathbf{p}_{c_0b_{k+1}} =
+\mathbf{p}_{c_0b_k} +
+\mathbf{v}_{c_0b_k}^{c_0}\Delta t_k +
+\frac{1}{2}\mathbf{g}^{c_0}\Delta t_k^2 +
 \mathbf{R}_{c_0b_k}\boldsymbol{\alpha}_{k,k+1}
 $$
 
@@ -863,8 +766,7 @@ $$
 为了得到 VINS 常见的矩阵块形式，左乘 $\mathbf{R}_{c_0b_k}^{\top}$，把方程表达在第 $k$ 帧 IMU 局部系下。定义局部速度：
 
 $$
-\mathbf{v}_{b_k}
-=
+\mathbf{v}_{b_k} =
 \mathbf{R}_{c_0b_k}^{\top}
 \mathbf{v}_{c_0b_k}^{c_0}
 $$
@@ -872,24 +774,18 @@ $$
 也就是第 $k$ 帧速度在第 $k$ 帧 IMU 坐标系下的表达。代入相机位置关系后，位移方程可以整理为：
 
 $$
--\Delta t_k\mathbf{v}_{b_k}
-+
+-\Delta t_k\mathbf{v}_{b_k} +
 \frac{1}{2}
 \mathbf{R}_{c_0b_k}^{\top}
 \mathbf{g}^{c_0}
-\Delta t_k^2
-+
+\Delta t_k^2 +
 \mathbf{R}_{c_0b_k}^{\top}
 \left(
-\bar{\mathbf{p}}_{c_0c_{k+1}}
--
+\bar{\mathbf{p}}_{c_0c_{k+1}} -
 \bar{\mathbf{p}}_{c_0c_k}
-\right)s
-=
-\boldsymbol{\alpha}_{k,k+1}
--
-\mathbf{p}_{bc}
-+
+\right)s =
+\boldsymbol{\alpha}_{k,k+1} -
+\mathbf{p}_{bc} +
 \mathbf{R}_{c_0b_k}^{\top}
 \mathbf{R}_{c_0b_{k+1}}
 \mathbf{p}_{bc}
@@ -906,42 +802,33 @@ $$
 再写速度方程：
 
 $$
-\mathbf{v}_{c_0b_{k+1}}^{c_0}
-=
-\mathbf{v}_{c_0b_k}^{c_0}
-+
-\mathbf{g}^{c_0}\Delta t_k
-+
+\mathbf{v}_{c_0b_{k+1}}^{c_0} =
+\mathbf{v}_{c_0b_k}^{c_0} +
+\mathbf{g}^{c_0}\Delta t_k +
 \mathbf{R}_{c_0b_k}\boldsymbol{\beta}_{k,k+1}
 $$
 
 左乘 $\mathbf{R}_{c_0b_k}^{\top}$，并使用：
 
 $$
-\mathbf{v}_{c_0b_k}^{c_0}
-=
+\mathbf{v}_{c_0b_k}^{c_0} =
 \mathbf{R}_{c_0b_k}\mathbf{v}_{b_k}
 $$
 
 $$
-\mathbf{v}_{c_0b_{k+1}}^{c_0}
-=
+\mathbf{v}_{c_0b_{k+1}}^{c_0} =
 \mathbf{R}_{c_0b_{k+1}}\mathbf{v}_{b_{k+1}}
 $$
 
 得到：
 
 $$
--
-\mathbf{v}_{b_k}
-+
+- \mathbf{v}_{b_k} +
 \mathbf{R}_{c_0b_k}^{\top}
 \mathbf{R}_{c_0b_{k+1}}
-\mathbf{v}_{b_{k+1}}
-+
+\mathbf{v}_{b_{k+1}} +
 \mathbf{R}_{c_0b_k}^{\top}
-\mathbf{g}^{c_0}\Delta t_k
-=
+\mathbf{g}^{c_0}\Delta t_k =
 \boldsymbol{\beta}_{k,k+1}
 $$
 
@@ -961,8 +848,7 @@ $$
 &
 \mathbf{R}_{c_0b_k}^{\top}
 \left(
-\bar{\mathbf{p}}_{c_0c_{k+1}}
--
+\bar{\mathbf{p}}_{c_0c_{k+1}} -
 \bar{\mathbf{p}}_{c_0c_k}
 \right)
 \\
@@ -979,13 +865,10 @@ $$
 \mathbf{v}_{b_{k+1}}\\
 \mathbf{g}^{c_0}\\
 s
-\end{bmatrix}
-=
+\end{bmatrix} =
 \begin{bmatrix}
-\boldsymbol{\alpha}_{k,k+1}
--
-\mathbf{p}_{bc}
-+
+\boldsymbol{\alpha}_{k,k+1} -
+\mathbf{p}_{bc} +
 \mathbf{R}_{c_0b_k}^{\top}
 \mathbf{R}_{c_0b_{k+1}}
 \mathbf{p}_{bc}\\
@@ -1005,8 +888,7 @@ $$
 通过最小二乘求解：
 
 $$
-\mathbf{y}^{*}
-=
+\mathbf{y}^{*} =
 \arg\min_{\mathbf{y}}
 \left\|
 \mathbf{A}\mathbf{y}-\mathbf{b}
@@ -1020,8 +902,7 @@ $$
 重力大小通常已知，例如：
 
 $$
-\|\mathbf{g}\|
-=
+\|\mathbf{g}\| =
 g_0
 $$
 
@@ -1047,12 +928,9 @@ $$
 其中 $\mathbf{b}_1$ 和 $\mathbf{b}_2$ 都垂直于 $\bar{\mathbf{g}}$。重力的小扰动可以写成：
 
 $$
-\mathbf{g}
-\approx
-\bar{\mathbf{g}}
-+
-w_1\mathbf{b}_1
-+
+\mathbf{g} \approx
+\bar{\mathbf{g}} +
+w_1\mathbf{b}_1 +
 w_2\mathbf{b}_2
 $$
 
@@ -1063,8 +941,7 @@ $$
 这样只优化两个自由度，而不是任意三维重力向量。优化后再把重力归一化到固定模长：
 
 $$
-\mathbf{g}
-\leftarrow
+\mathbf{g} \leftarrow
 g_0
 \frac{\mathbf{g}}{\|\mathbf{g}\|}
 $$
@@ -1076,8 +953,7 @@ $$
 相机和 IMU 不在同一个坐标系。外参为：
 
 $$
-\mathbf{T}_{ic}
-=
+\mathbf{T}_{ic} =
 \left[
 \mathbf{R}_{ic},\mathbf{p}_{ic}
 \right]
@@ -1106,8 +982,7 @@ $$
 
 $$
 \mathbf{R}_{i_i i_j}^{\text{imu}}
-\mathbf{R}_{ic}
-=
+\mathbf{R}_{ic} =
 \mathbf{R}_{ic}
 \mathbf{R}_{c_i c_j}^{\text{vis}}
 $$
@@ -1115,8 +990,7 @@ $$
 这个形式就是经典的手眼标定旋转问题：
 
 $$
-\mathbf{A}\mathbf{X}
-=
+\mathbf{A}\mathbf{X} =
 \mathbf{X}\mathbf{B}
 $$
 
@@ -1141,8 +1015,7 @@ $$
 如果相机和 IMU 存在时间偏移，视觉观测实际发生的时刻不是名义时间 $t$，而是：
 
 $$
-t_c^{\text{true}}
-=
+t_c^{\text{true}} =
 t_c + t_d
 $$
 
@@ -1159,8 +1032,7 @@ $$
 设某个特征点在图像中的归一化坐标为：
 
 $$
-\mathbf{u}(t)
-=
+\mathbf{u}(t) =
 \begin{bmatrix}
 u(t)\\
 v(t)
@@ -1175,10 +1047,8 @@ $$
 如果图像时间需要修正 $t_d$，可以用一阶近似：
 
 $$
-\mathbf{u}(t+t_d)
-\approx
-\mathbf{u}(t)
-+
+\mathbf{u}(t+t_d) \approx
+\mathbf{u}(t) +
 \dot{\mathbf{u}}(t)t_d
 $$
 
@@ -1190,8 +1060,7 @@ $$
 如果跟踪器提供图像平面速度：
 
 $$
-\dot{\mathbf{u}}
-=
+\dot{\mathbf{u}} =
 \begin{bmatrix}
 \dot{u}\\
 \dot{v}
@@ -1201,10 +1070,8 @@ $$
 则时间修正后的观测可以写成：
 
 $$
-\mathbf{u}^{\text{corr}}
-=
-\mathbf{u}
-+
+\mathbf{u}^{\text{corr}} =
+\mathbf{u} +
 t_d\dot{\mathbf{u}}
 $$
 
@@ -1216,16 +1083,14 @@ $$
 这样，视觉重投影残差不再只是：
 
 $$
-\mathbf{r}_{\text{proj}}
-=
+\mathbf{r}_{\text{proj}} =
 \pi(\mathbf{P}_c)-\mathbf{u}
 $$
 
 而变成：
 
 $$
-\mathbf{r}_{\text{proj}}
-=
+\mathbf{r}_{\text{proj}} =
 \pi(\mathbf{P}_c)-\left(\mathbf{u}+t_d\dot{\mathbf{u}}\right)
 $$
 
@@ -1241,16 +1106,14 @@ $$
 如果残差为：
 
 $$
-\mathbf{r}
-=
+\mathbf{r} =
 \pi(\mathbf{P}_c)-\mathbf{u}-t_d\dot{\mathbf{u}}
 $$
 
 则它对时间偏移 $t_d$ 的雅克比为：
 
 $$
-\frac{\partial\mathbf{r}}{\partial t_d}
-=
+\frac{\partial\mathbf{r}}{\partial t_d} =
 -\dot{\mathbf{u}}
 $$
 
@@ -1265,8 +1128,7 @@ $$
 如果图像时刻偏移为 $t_d$，那么名义上的帧间隔：
 
 $$
-\Delta t_{ij}
-=
+\Delta t_{ij} =
 t_j-t_i
 $$
 
@@ -1322,14 +1184,10 @@ $$
 这些量会作为滑动窗口非线性优化的初始值。之后系统开始进入正常 VIO 模式：
 
 $$
-\text{新图像和 IMU}
-\rightarrow
-\text{构造因子}
-\rightarrow
-\text{滑窗优化}
-\rightarrow
-\text{边缘化旧变量}
-\rightarrow
+\text{新图像和 IMU} \rightarrow
+\text{构造因子} \rightarrow
+\text{滑窗优化} \rightarrow
+\text{边缘化旧变量} \rightarrow
 \text{继续运行}
 $$
 
@@ -1348,14 +1206,10 @@ FEJ 固定边缘化先验的线性化结构。如果 first estimate 本身很差
 所以，完整 VIO 系统的逻辑应当是：
 
 $$
-\text{可靠初始化}
-\rightarrow
-\text{正确时间建模}
-\rightarrow
-\text{稳定滑窗优化}
-\rightarrow
-\text{合理边缘化}
-\rightarrow
+\text{可靠初始化} \rightarrow
+\text{正确时间建模} \rightarrow
+\text{稳定滑窗优化} \rightarrow
+\text{合理边缘化} \rightarrow
 \text{一致性保持}
 $$
 

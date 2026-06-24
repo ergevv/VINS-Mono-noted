@@ -11,62 +11,40 @@ $$
 这个问题可以拆成八层：
 
 $$
-\text{系统框架}
-\rightarrow
-\text{概率建模}
-\rightarrow
-\text{一般因子图与 VINS/GTSAM 对照}
-\rightarrow
-\text{IMU 预积分}
-\rightarrow
-\text{后端残差与雅克比}
-\rightarrow
-\text{初始化与时间同步}
-\rightarrow
-\text{滑窗实时化}
-\rightarrow
-\text{线性化一致性}
-\rightarrow
+\text{系统框架} \rightarrow
+\text{概率建模} \rightarrow
+\text{一般因子图与 VINS/GTSAM 对照} \rightarrow
+\text{IMU 预积分} \rightarrow
+\text{后端残差与雅克比} \rightarrow
+\text{初始化与时间同步} \rightarrow
+\text{滑窗实时化} \rightarrow
+\text{线性化一致性} \rightarrow
 \text{可观性保持}
 $$
 
 对应到技术关键词就是：
 
 $$
-\text{Pipeline}
-\rightarrow
-\text{Factor Graph}
-\rightarrow
-\text{VINS vs GTSAM}
-\rightarrow
-\text{Preintegration}
-\rightarrow
-\text{Backend Residuals}
-\rightarrow
-\text{Initialization / Time Offset}
-\rightarrow
-\text{Marginalization}
-\rightarrow
-\text{FEJ-like Prior / FEJ}
-\rightarrow
+\text{Pipeline} \rightarrow
+\text{Factor Graph} \rightarrow
+\text{VINS vs GTSAM} \rightarrow
+\text{Preintegration} \rightarrow
+\text{Backend Residuals} \rightarrow
+\text{Initialization / Time Offset} \rightarrow
+\text{Marginalization} \rightarrow
+\text{FEJ-like Prior / FEJ} \rightarrow
 \text{Observability Preservation}
 $$
 
 如果从零开始，推荐把整套文章按下面理解：
 
 $$
-\text{先知道系统有哪些模块}
-\rightarrow
-\text{再知道优化问题怎么写}
-\rightarrow
-\text{再知道一般因子图和滑窗优化的关系}
-\rightarrow
-\text{再知道 IMU 预积分怎么把高频惯性测量变成帧间因子}
-\rightarrow
-\text{再知道 IMU 和视觉残差怎么进入后端}
-\rightarrow
-\text{再知道系统怎么初始化和实时运行}
-\rightarrow
+\text{先知道系统有哪些模块} \rightarrow
+\text{再知道优化问题怎么写} \rightarrow
+\text{再知道一般因子图和滑窗优化的关系} \rightarrow
+\text{再知道 IMU 预积分怎么把高频惯性测量变成帧间因子} \rightarrow
+\text{再知道 IMU 和视觉残差怎么进入后端} \rightarrow
+\text{再知道系统怎么初始化和实时运行} \rightarrow
 \text{最后理解边缘化、FEJ-like prior 和可观性}
 $$
 
@@ -75,8 +53,7 @@ $$
 VIO 中的未知量包括：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \left\{
 \mathbf{x}_k,\lambda_l,\mathbf{T}_{ic}
 \right\}
@@ -105,8 +82,7 @@ $$
 整体优化问题是：
 
 $$
-\mathcal{X}^{*}
-=
+\mathcal{X}^{*} =
 \arg\min_{\mathcal{X}}
 \sum_i
 \left\|
@@ -159,8 +135,7 @@ $$
 它们进入后端后形成 IMU 残差：
 
 $$
-\mathbf{r}_{imu}
-=
+\mathbf{r}_{imu} =
 \begin{bmatrix}
 \mathbf{r}_p\\
 \mathbf{r}_q\\
@@ -173,10 +148,8 @@ $$
 第二块是视觉重投影。特征点由宿主帧逆深度恢复三维位置，再通过两帧位姿和外参投影到目标帧：
 
 $$
-\mathbf{r}_{proj}
-=
-\pi(\mathbf{P}_{c_j})
--
+\mathbf{r}_{proj} =
+\pi(\mathbf{P}_{c_j}) -
 \mathbf{z}_{j}
 $$
 
@@ -197,8 +170,7 @@ $$
 其中速度、重力和尺度通常可整理成线性最小二乘：
 
 $$
-\mathbf{A}\mathbf{y}
-=
+\mathbf{A}\mathbf{y} =
 \mathbf{b}
 $$
 
@@ -223,8 +195,7 @@ $$
 那么优化问题会无限增长。滑动窗口只保留：
 
 $$
-\mathcal{X}_{k:k+W}
-=
+\mathcal{X}_{k:k+W} =
 \left\{
 \mathbf{x}_k,\dots,\mathbf{x}_{k+W}
 \right\}
@@ -235,8 +206,7 @@ $$
 但直接删除旧变量会丢失历史信息。因此把变量分成：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \left[
 \mathcal{X}_m,\mathcal{X}_r
 \right]
@@ -257,8 +227,7 @@ $$
 \begin{bmatrix}
 \delta\mathcal{X}_m \\
 \delta\mathcal{X}_r
-\end{bmatrix}
-=
+\end{bmatrix} =
 \begin{bmatrix}
 \mathbf{g}_m \\
 \mathbf{g}_r
@@ -268,18 +237,14 @@ $$
 用 Schur 补消去 $\delta\mathcal{X}_m$：
 
 $$
-\mathbf{H}^{\text{prior}}_r
-=
-\mathbf{H}_{rr}
--
+\mathbf{H}^{\text{prior}}_r =
+\mathbf{H}_{rr} -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{H}_{mr}
 $$
 
 $$
-\mathbf{g}^{\text{prior}}_r
-=
-\mathbf{g}_r
--
+\mathbf{g}^{\text{prior}}_r =
+\mathbf{g}_r -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{g}_m
 $$
 
@@ -305,10 +270,8 @@ $$
 边缘化得到的先验不是原始非线性因子，而是在某个线性化点附近形成的一阶近似：
 
 $$
-\mathbf{r}_{\text{prior}}(\mathcal{X}_r)
-=
-\mathbf{r}^{\text{prior}}_0
-+
+\mathbf{r}_{\text{prior}}(\mathcal{X}_r) =
+\mathbf{r}^{\text{prior}}_0 +
 \mathbf{J}^{\text{prior}}
 \left(
 \mathcal{X}_r\boxminus\bar{\mathcal{X}}_r
@@ -359,8 +322,7 @@ $$
 VIO 并不是所有状态都能被传感器唯一确定。对于没有全局传感器的单目 VIO，典型不可观方向是：
 
 $$
-3\text{ DOF global translation}
-+
+3\text{ DOF global translation} +
 1\text{ DOF global yaw}
 $$
 
@@ -375,16 +337,14 @@ $$
 在线性化系统中，如果 $\mathbf{n}$ 是不可观方向，理想情况下应满足：
 
 $$
-\mathbf{J}\mathbf{n}
-=
+\mathbf{J}\mathbf{n} =
 \mathbf{0}
 $$
 
 以及：
 
 $$
-\mathbf{H}\mathbf{n}
-=
+\mathbf{H}\mathbf{n} =
 \mathbf{0}
 $$
 
@@ -397,8 +357,7 @@ $$
 如果错误线性化或错误边缘化导致：
 
 $$
-\mathbf{H}\mathbf{n}
-\neq
+\mathbf{H}\mathbf{n} \neq
 \mathbf{0}
 $$
 
@@ -427,38 +386,32 @@ $$
 不要把 Factor Graph、Marginalization、FEJ、Observability 当成并列知识点。它们之间有明确因果关系：
 
 $$
-\text{传感器融合需要统一概率建模}
-\Rightarrow
+\text{传感器融合需要统一概率建模} \Rightarrow
 \text{因子图}
 $$
 
 $$
-\text{因子图会无限增长}
-\Rightarrow
+\text{因子图会无限增长} \Rightarrow
 \text{滑动窗口}
 $$
 
 $$
-\text{滑动窗口不能直接丢历史}
-\Rightarrow
+\text{滑动窗口不能直接丢历史} \Rightarrow
 \text{边缘化}
 $$
 
 $$
-\text{边缘化只保留线性化先验}
-\Rightarrow
+\text{边缘化只保留线性化先验} \Rightarrow
 \text{不能随便重线性化}
 $$
 
 $$
-\text{固定边缘化雅克比}
-\Rightarrow
+\text{固定边缘化雅克比} \Rightarrow
 \text{FEJ-like prior}
 $$
 
 $$
-\text{固定线性化结构有助于保持零空间}
-\Rightarrow
+\text{固定线性化结构有助于保持零空间} \Rightarrow
 \text{可观性保持}
 $$
 

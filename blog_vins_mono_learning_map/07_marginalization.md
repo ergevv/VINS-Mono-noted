@@ -5,8 +5,7 @@
 上一篇我们把 VIO 写成了一个因子图优化问题。假设系统一直运行，每来一帧图像，就会增加一个新的状态：
 
 $$
-\mathbf{x}_{N+1}
-=
+\mathbf{x}_{N+1} =
 \left[
 \mathbf{p}_{N+1},\,
 \mathbf{q}_{N+1},\,
@@ -21,8 +20,7 @@ $$
 同时，新图像还会带来新的视觉观测，IMU 也会在相邻帧之间形成新的预积分约束。如果我们永远保留所有历史状态和所有历史特征点，那么优化变量会越来越多：
 
 $$
-\mathcal{X}_{0:N}
-=
+\mathcal{X}_{0:N} =
 \left\{
 \mathbf{x}_0,\mathbf{x}_1,\dots,\mathbf{x}_N
 \right\}
@@ -33,8 +31,7 @@ $$
 因此，滑动窗口 VIO 只维护最近一段时间内的变量，例如：
 
 $$
-\mathcal{X}_{k:k+W}
-=
+\mathcal{X}_{k:k+W} =
 \left\{
 \mathbf{x}_k,\mathbf{x}_{k+1},\dots,\mathbf{x}_{k+W}
 \right\}
@@ -73,8 +70,7 @@ IMU 约束连接 $\mathbf{x}_0$ 和 $\mathbf{x}_1$，另一个 IMU 约束连接 
 设当前窗口中的变量被分成两类：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \left[
 \mathcal{X}_m,\,
 \mathcal{X}_r
@@ -96,8 +92,7 @@ $$
 其中 $\mathcal{Z}$ 表示已有测量，那么删除 $\mathcal{X}_m$ 后，对保留变量 $\mathcal{X}_r$ 的正确概率应该是：
 
 $$
-p(\mathcal{X}_r\mid\mathcal{Z})
-=
+p(\mathcal{X}_r\mid\mathcal{Z}) =
 \int
 p(\mathcal{X}_m,\mathcal{X}_r\mid\mathcal{Z})
 d\mathcal{X}_m
@@ -116,8 +111,7 @@ $$
 其中 $x_m$ 是要删除的变量，$x_r$ 是要保留的变量。假设它们的联合负对数概率是一个二次型：
 
 $$
-E(x_m,x_r)
-=
+E(x_m,x_r) =
 \frac{1}{2}
 \begin{bmatrix}
 x_m\\x_r
@@ -128,8 +122,7 @@ H_{rm} & H_{rr}
 \end{bmatrix}
 \begin{bmatrix}
 x_m\\x_r
-\end{bmatrix}
--
+\end{bmatrix} -
 \begin{bmatrix}
 g_m\\g_r
 \end{bmatrix}^{\top}
@@ -147,14 +140,11 @@ $$
 边缘化 $x_m$ 后，我们希望得到只关于 $x_r$ 的能量：
 
 $$
-E_{\text{marg}}(x_r)
-=
--
+E_{\text{marg}}(x_r) = -
 \log
 \int
 \exp
-\left(
--
+\left( -
 E(x_m,x_r)
 \right)
 dx_m
@@ -163,26 +153,22 @@ $$
 对高斯分布来说，这个积分的结果仍然是关于 $x_r$ 的二次函数：
 
 $$
-E_{\text{marg}}(x_r)
-=
+E_{\text{marg}}(x_r) =
 \frac{1}{2}
 x_r^{\top}
 H^{prior}_r
-x_r
--
+x_r -
 \left(
 g^{prior}_r
 \right)^{\top}
-x_r
-+
+x_r +
 \text{const}
 $$
 
 其中 $H^{prior}_r$ 和 $g^{prior}_r$ 正是后面 Schur 补得到的结果。也就是说：
 
 $$
-\text{概率积分掉变量}
-\quad\Longleftrightarrow\quad
+\text{概率积分掉变量} \Longleftrightarrow
 \text{在线性高斯二次型中做 Schur 补}
 $$
 
@@ -191,10 +177,8 @@ $$
 非线性优化每次迭代时，都会在当前线性化点附近建立一个二次近似。把所有残差堆叠起来：
 
 $$
-\mathbf{r}(\mathcal{X})
-\approx
-\mathbf{r}_0
-+
+\mathbf{r}(\mathcal{X}) \approx
+\mathbf{r}_0 +
 \mathbf{J}\delta\mathcal{X}
 $$
 
@@ -220,10 +204,8 @@ $$
 于是残差的一阶近似更明确地写成：
 
 $$
-\mathbf{r}(\mathcal{X})
-\approx
-\mathbf{r}(\bar{\mathcal{X}})
-+
+\mathbf{r}(\mathcal{X}) \approx
+\mathbf{r}(\bar{\mathcal{X}}) +
 \mathbf{J}(\bar{\mathcal{X}})
 \left(
 \mathcal{X}\boxminus\bar{\mathcal{X}}
@@ -241,20 +223,17 @@ $$
 因此：
 
 $$
-\mathbf{r}_0
-=
+\mathbf{r}_0 =
 \mathbf{r}(\bar{\mathcal{X}})
 $$
 
 $$
-\mathbf{J}
-=
+\mathbf{J} =
 \mathbf{J}(\bar{\mathcal{X}})
 $$
 
 $$
-\delta\mathcal{X}
-=
+\delta\mathcal{X} =
 \mathcal{X}\boxminus\bar{\mathcal{X}}
 $$
 
@@ -267,8 +246,7 @@ $$
 其中 $t$ 表示第 $t$ 次迭代。该增量会被用于更新：
 
 $$
-\mathcal{X}^{(t+1)}
-=
+\mathcal{X}^{(t+1)} =
 \mathcal{X}^{(t)}
 \boxplus
 \delta\mathcal{X}^{(t)}
@@ -295,8 +273,7 @@ $$
 $$
 \min_{\delta\mathcal{X}}
 \left\|
-\mathbf{r}_0
-+
+\mathbf{r}_0 +
 \mathbf{J}\delta\mathcal{X}
 \right\|^2
 $$
@@ -306,8 +283,7 @@ $$
 $$
 \min_{\delta\mathcal{X}}
 \left\|
-\mathbf{r}_0
-+
+\mathbf{r}_0 +
 \mathbf{J}\delta\mathcal{X}
 \right\|_{\mathbf{\Omega}}^2
 $$
@@ -320,62 +296,51 @@ $$
 它对应正规方程：
 
 $$
-\mathbf{H}\delta\mathcal{X}
-=
+\mathbf{H}\delta\mathcal{X} =
 \mathbf{g}
 $$
 
 其中：
 
 $$
-\mathbf{H}
-=
+\mathbf{H} =
 \mathbf{J}^{\top}\mathbf{\Omega}\mathbf{J}
 $$
 
 $$
-\mathbf{g}
-=
--
+\mathbf{g} = -
 \mathbf{J}^{\top}\mathbf{\Omega}\mathbf{r}_0
 $$
 
 如果使用白化后的残差：
 
 $$
-\tilde{\mathbf{r}}_0
-=
+\tilde{\mathbf{r}}_0 =
 \mathbf{L}^{\top}\mathbf{r}_0,
 \quad
-\tilde{\mathbf{J}}
-=
+\tilde{\mathbf{J}} =
 \mathbf{L}^{\top}\mathbf{J},
 \quad
-\mathbf{\Omega}
-=
+\mathbf{\Omega} =
 \mathbf{L}\mathbf{L}^{\top}
 $$
 
 那么上式就退化成：
 
 $$
-\mathbf{H}
-=
+\mathbf{H} =
 \tilde{\mathbf{J}}^{\top}\tilde{\mathbf{J}}
 $$
 
 $$
-\mathbf{g}
-=
--
+\mathbf{g} = -
 \tilde{\mathbf{J}}^{\top}\tilde{\mathbf{r}}_0
 $$
 
 现在把增量分成两部分：
 
 $$
-\delta\mathcal{X}
-=
+\delta\mathcal{X} =
 \begin{bmatrix}
 \delta\mathcal{X}_m \\
 \delta\mathcal{X}_r
@@ -397,8 +362,7 @@ $$
 \begin{bmatrix}
 \delta\mathcal{X}_m \\
 \delta\mathcal{X}_r
-\end{bmatrix}
-=
+\end{bmatrix} =
 \begin{bmatrix}
 \mathbf{g}_m \\
 \mathbf{g}_r
@@ -417,22 +381,18 @@ $$
 第一行是：
 
 $$
-\mathbf{H}_{mm}\delta\mathcal{X}_m
-+
-\mathbf{H}_{mr}\delta\mathcal{X}_r
-=
+\mathbf{H}_{mm}\delta\mathcal{X}_m +
+\mathbf{H}_{mr}\delta\mathcal{X}_r =
 \mathbf{g}_m
 $$
 
 如果 $\mathbf{H}_{mm}$ 可逆，则：
 
 $$
-\delta\mathcal{X}_m
-=
+\delta\mathcal{X}_m =
 \mathbf{H}_{mm}^{-1}
 \left(
-\mathbf{g}_m
--
+\mathbf{g}_m -
 \mathbf{H}_{mr}\delta\mathcal{X}_r
 \right)
 $$
@@ -440,10 +400,8 @@ $$
 把它代入第二行：
 
 $$
-\mathbf{H}_{rm}\delta\mathcal{X}_m
-+
-\mathbf{H}_{rr}\delta\mathcal{X}_r
-=
+\mathbf{H}_{rm}\delta\mathcal{X}_m +
+\mathbf{H}_{rr}\delta\mathcal{X}_r =
 \mathbf{g}_r
 $$
 
@@ -451,32 +409,25 @@ $$
 
 $$
 \left(
-\mathbf{H}_{rr}
--
+\mathbf{H}_{rr} -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{H}_{mr}
 \right)
-\delta\mathcal{X}_r
-=
-\mathbf{g}_r
--
+\delta\mathcal{X}_r =
+\mathbf{g}_r -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{g}_m
 $$
 
 定义：
 
 $$
-\mathbf{H}^{\text{prior}}_r
-=
-\mathbf{H}_{rr}
--
+\mathbf{H}^{\text{prior}}_r =
+\mathbf{H}_{rr} -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{H}_{mr}
 $$
 
 $$
-\mathbf{g}^{\text{prior}}_r
-=
-\mathbf{g}_r
--
+\mathbf{g}^{\text{prior}}_r =
+\mathbf{g}_r -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{g}_m
 $$
 
@@ -490,8 +441,7 @@ $$
 从二次能量角度看，边缘化前的局部能量是：
 
 $$
-E(\delta\mathcal{X}_m,\delta\mathcal{X}_r)
-=
+E(\delta\mathcal{X}_m,\delta\mathcal{X}_r) =
 \frac{1}{2}
 \begin{bmatrix}
 \delta\mathcal{X}_m\\
@@ -504,8 +454,7 @@ E(\delta\mathcal{X}_m,\delta\mathcal{X}_r)
 \begin{bmatrix}
 \delta\mathcal{X}_m\\
 \delta\mathcal{X}_r
-\end{bmatrix}
--
+\end{bmatrix} -
 \begin{bmatrix}
 \mathbf{g}_m\\
 \mathbf{g}_r
@@ -519,13 +468,11 @@ $$
 边缘化后变成：
 
 $$
-E^{prior}(\delta\mathcal{X}_r)
-=
+E^{prior}(\delta\mathcal{X}_r) =
 \frac{1}{2}
 \delta\mathcal{X}_r^{\top}
 \mathbf{H}^{prior}_r
-\delta\mathcal{X}_r
--
+\delta\mathcal{X}_r -
 \left(
 \mathbf{g}^{prior}_r
 \right)^{\top}
@@ -541,8 +488,7 @@ Schur 补的效果可以用一个简单例子说明。
 设有两个变量 $x_0$ 和 $x_1$，它们之间有一个相对约束：
 
 $$
-z_{01}
-=
+z_{01} =
 x_1-x_0+n
 $$
 
@@ -567,10 +513,8 @@ $$
 重新表示成一个残差：
 
 $$
-\mathbf{r}_{\text{prior}}
-=
-\mathbf{r}^{\text{prior}}_0
-+
+\mathbf{r}_{\text{prior}} =
+\mathbf{r}^{\text{prior}}_0 +
 \mathbf{J}^{\text{prior}}\delta\mathcal{X}_r
 $$
 
@@ -584,8 +528,7 @@ $$
 
 $$
 \left(\mathbf{J}^{\text{prior}}\right)^{\top}
-\mathbf{J}^{\text{prior}}
-=
+\mathbf{J}^{\text{prior}} =
 \mathbf{H}^{\text{prior}}_r
 $$
 
@@ -593,16 +536,14 @@ $$
 
 $$
 \left(\mathbf{J}^{\text{prior}}\right)^{\top}
-\mathbf{r}^{\text{prior}}_0
-=
+\mathbf{r}^{\text{prior}}_0 =
 -\mathbf{g}^{\text{prior}}_r
 $$
 
 一种常见做法是对 $\mathbf{H}^{\text{prior}}_r$ 做特征值分解：
 
 $$
-\mathbf{H}^{\text{prior}}_r
-=
+\mathbf{H}^{\text{prior}}_r =
 \mathbf{V}\mathbf{S}\mathbf{V}^{\top}
 $$
 
@@ -614,8 +555,7 @@ $$
 可以取：
 
 $$
-\mathbf{J}^{\text{prior}}
-=
+\mathbf{J}^{\text{prior}} =
 \mathbf{S}^{\frac{1}{2}}\mathbf{V}^{\top}
 $$
 
@@ -623,13 +563,10 @@ $$
 
 $$
 \left(\mathbf{J}^{\text{prior}}\right)^{\top}
-\mathbf{J}^{\text{prior}}
-=
+\mathbf{J}^{\text{prior}} =
 \mathbf{V}\mathbf{S}^{\frac{1}{2}}
-\mathbf{S}^{\frac{1}{2}}\mathbf{V}^{\top}
-=
-\mathbf{V}\mathbf{S}\mathbf{V}^{\top}
-=
+\mathbf{S}^{\frac{1}{2}}\mathbf{V}^{\top} =
+\mathbf{V}\mathbf{S}\mathbf{V}^{\top} =
 \mathbf{H}^{\text{prior}}_r
 $$
 
@@ -637,34 +574,28 @@ $$
 
 $$
 \left(\mathbf{J}^{\text{prior}}\right)^{\top}
-\mathbf{r}^{\text{prior}}_0
-=
--
+\mathbf{r}^{\text{prior}}_0 = -
 \mathbf{g}^{\text{prior}}_r
 $$
 
 由于：
 
 $$
-\mathbf{J}^{\text{prior}}
-=
+\mathbf{J}^{\text{prior}} =
 \mathbf{S}^{\frac{1}{2}}\mathbf{V}^{\top}
 $$
 
 所以：
 
 $$
-\left(\mathbf{J}^{\text{prior}}\right)^{\top}
-=
+\left(\mathbf{J}^{\text{prior}}\right)^{\top} =
 \mathbf{V}\mathbf{S}^{\frac{1}{2}}
 $$
 
 我们可以取：
 
 $$
-\mathbf{r}^{\text{prior}}_0
-=
--
+\mathbf{r}^{\text{prior}}_0 = -
 \mathbf{S}^{-\frac{1}{2}}
 \mathbf{V}^{\top}
 \mathbf{g}^{\text{prior}}_r
@@ -674,21 +605,15 @@ $$
 
 $$
 \left(\mathbf{J}^{\text{prior}}\right)^{\top}
-\mathbf{r}^{\text{prior}}_0
-=
+\mathbf{r}^{\text{prior}}_0 =
 \mathbf{V}\mathbf{S}^{\frac{1}{2}}
-\left(
--
+\left( -
 \mathbf{S}^{-\frac{1}{2}}
 \mathbf{V}^{\top}
 \mathbf{g}^{\text{prior}}_r
-\right)
-=
--
+\right) = -
 \mathbf{V}\mathbf{V}^{\top}
-\mathbf{g}^{\text{prior}}_r
-=
--
+\mathbf{g}^{\text{prior}}_r = -
 \mathbf{g}^{\text{prior}}_r
 $$
 
@@ -696,8 +621,7 @@ $$
 
 $$
 \left\|
-\mathbf{r}^{\text{prior}}_0
-+
+\mathbf{r}^{\text{prior}}_0 +
 \mathbf{J}^{\text{prior}}\delta\mathcal{X}_r
 \right\|^2
 $$

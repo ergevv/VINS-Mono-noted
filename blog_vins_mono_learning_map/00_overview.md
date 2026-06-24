@@ -9,18 +9,12 @@ $$
 VINS-Mono 可以理解为一个把相机和 IMU 测量变成连续轨迹的系统。它的主链路是：
 
 $$
-\text{图像与 IMU 输入}
-\rightarrow
-\text{前端特征跟踪}
-\rightarrow
-\text{IMU 预积分}
-\rightarrow
-\text{初始化}
-\rightarrow
-\text{滑窗非线性优化}
-\rightarrow
-\text{边缘化}
-\rightarrow
+\text{图像与 IMU 输入} \rightarrow
+\text{前端特征跟踪} \rightarrow
+\text{IMU 预积分} \rightarrow
+\text{初始化} \rightarrow
+\text{滑窗非线性优化} \rightarrow
+\text{边缘化} \rightarrow
 \text{闭环检测与全局优化}
 $$
 
@@ -73,8 +67,7 @@ $$
 初始化成功后，系统进入正常滑窗优化。窗口内状态包括：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \left\{
 \mathbf{x}_0,\dots,\mathbf{x}_N,\lambda_1,\dots,\lambda_M,\mathbf{T}_{ic},t_d
 \right\}
@@ -91,11 +84,9 @@ $$
 $$
 \min_{\mathcal{X}}
 \left(
-\left\|\mathbf{r}_{prior}\right\|^2
-+
+\left\|\mathbf{r}_{prior}\right\|^2 +
 \sum_k
-\left\|\mathbf{r}_{imu,k}\right\|^2
-+
+\left\|\mathbf{r}_{imu,k}\right\|^2 +
 \sum_l
 \left\|\mathbf{r}_{proj,l}\right\|^2
 \right)
@@ -122,10 +113,8 @@ $$
 核心工具是 Schur 补：
 
 $$
-\mathbf{H}^{prior}
-=
-\mathbf{H}_{rr}
--
+\mathbf{H}^{prior} =
+\mathbf{H}_{rr} -
 \mathbf{H}_{rm}\mathbf{H}_{mm}^{-1}\mathbf{H}_{mr}
 $$
 
@@ -136,8 +125,7 @@ $$
 VINS-Mono 没有 GPS 和磁力计，所以它不可能知道绝对世界原点和绝对 yaw。典型不可观方向是：
 
 $$
-3\text{ DOF 平移}
-+
+3\text{ DOF 平移} +
 1\text{ DOF yaw}
 $$
 

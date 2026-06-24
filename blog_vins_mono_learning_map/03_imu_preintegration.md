@@ -27,8 +27,7 @@ $$
 设世界坐标系为 $w$，IMU 机体系为 $b$。第 $t$ 时刻 IMU 状态为：
 
 $$
-\mathbf{x}_t
-=
+\mathbf{x}_t =
 \left[
 \mathbf{p}_{w b_t},\,
 \mathbf{v}_{w b_t},\,
@@ -49,22 +48,16 @@ $$
 IMU 测量为：
 
 $$
-\hat{\mathbf{a}}_t
-=
-\mathbf{a}_t^b
-+
-\mathbf{b}_{a,t}
-+
+\hat{\mathbf{a}}_t =
+\mathbf{a}_t^b +
+\mathbf{b}_{a,t} +
 \mathbf{n}_{a,t}
 $$
 
 $$
-\hat{\boldsymbol{\omega}}_t
-=
-\boldsymbol{\omega}_t
-+
-\mathbf{b}_{g,t}
-+
+\hat{\boldsymbol{\omega}}_t =
+\boldsymbol{\omega}_t +
+\mathbf{b}_{g,t} +
 \mathbf{n}_{g,t}
 $$
 
@@ -80,39 +73,33 @@ $$
 去 bias 和噪声后：
 
 $$
-\mathbf{a}_t^b
-=
+\mathbf{a}_t^b =
 \hat{\mathbf{a}}_t-\mathbf{b}_{a,t}-\mathbf{n}_{a,t}
 $$
 
 $$
-\boldsymbol{\omega}_t
-=
+\boldsymbol{\omega}_t =
 \hat{\boldsymbol{\omega}}_t-\mathbf{b}_{g,t}-\mathbf{n}_{g,t}
 $$
 
 连续运动方程为：
 
 $$
-\dot{\mathbf{p}}_{w b_t}
-=
+\dot{\mathbf{p}}_{w b_t} =
 \mathbf{v}_{w b_t}
 $$
 
 $$
-\dot{\mathbf{v}}_{w b_t}
-=
+\dot{\mathbf{v}}_{w b_t} =
 \mathbf{R}_{w b_t}
 \left(
 \hat{\mathbf{a}}_t-\mathbf{b}_{a,t}-\mathbf{n}_{a,t}
-\right)
-+
+\right) +
 \mathbf{g}^{w}
 $$
 
 $$
-\dot{\mathbf{R}}_{w b_t}
-=
+\dot{\mathbf{R}}_{w b_t} =
 \mathbf{R}_{w b_t}
 \left(
 \hat{\boldsymbol{\omega}}_t-\mathbf{b}_{g,t}-\mathbf{n}_{g,t}
@@ -131,26 +118,20 @@ VINS 中有两类 IMU 积分，容易混淆。
 第一类是当前状态预测，用来给新图像帧提供初值：
 
 $$
-\mathbf{p}_{k+1}
-=
-\mathbf{p}_{k}
-+
-\mathbf{v}_{k}\delta t
-+
+\mathbf{p}_{k+1} =
+\mathbf{p}_{k} +
+\mathbf{v}_{k}\delta t +
 \frac{1}{2}\mathbf{a}^{w}_{mid}\delta t^2
 $$
 
 $$
-\mathbf{v}_{k+1}
-=
-\mathbf{v}_{k}
-+
+\mathbf{v}_{k+1} =
+\mathbf{v}_{k} +
 \mathbf{a}^{w}_{mid}\delta t
 $$
 
 $$
-\mathbf{q}_{k+1}
-=
+\mathbf{q}_{k+1} =
 \mathbf{q}_{k}
 \otimes
 \delta\mathbf{q}
@@ -182,12 +163,9 @@ $$
 从运动方程积分得到：
 
 $$
-\mathbf{v}_j
-=
-\mathbf{v}_i
-+
-\mathbf{g}^{w}\Delta t_{ij}
-+
+\mathbf{v}_j =
+\mathbf{v}_i +
+\mathbf{g}^{w}\Delta t_{ij} +
 \int_{t_i}^{t_j}
 \mathbf{R}_{w b_t}
 \left(
@@ -196,14 +174,10 @@ $$
 $$
 
 $$
-\mathbf{p}_j
-=
-\mathbf{p}_i
-+
-\mathbf{v}_i\Delta t_{ij}
-+
-\frac{1}{2}\mathbf{g}^{w}\Delta t_{ij}^2
-+
+\mathbf{p}_j =
+\mathbf{p}_i +
+\mathbf{v}_i\Delta t_{ij} +
+\frac{1}{2}\mathbf{g}^{w}\Delta t_{ij}^2 +
 \int_{t_i}^{t_j}
 \int_{t_i}^{s}
 \mathbf{R}_{w b_\tau}
@@ -217,8 +191,7 @@ $$
 关键步骤是把 $\mathbf{R}_{w b_t}$ 写成：
 
 $$
-\mathbf{R}_{w b_t}
-=
+\mathbf{R}_{w b_t} =
 \mathbf{R}_{w b_i}\mathbf{R}_{b_i b_t}
 $$
 
@@ -230,8 +203,7 @@ $$
 将等式左乘 $\mathbf{R}_{w b_i}^{\top}$，定义：
 
 $$
-\boldsymbol{\beta}_{ij}
-=
+\boldsymbol{\beta}_{ij} =
 \int_{t_i}^{t_j}
 \mathbf{R}_{b_i b_t}
 \left(
@@ -240,8 +212,7 @@ $$
 $$
 
 $$
-\boldsymbol{\alpha}_{ij}
-=
+\boldsymbol{\alpha}_{ij} =
 \int_{t_i}^{t_j}
 \int_{t_i}^{s}
 \mathbf{R}_{b_i b_\tau}
@@ -251,38 +222,29 @@ $$
 $$
 
 $$
-\boldsymbol{\gamma}_{ij}
-=
+\boldsymbol{\gamma}_{ij} =
 \mathbf{R}_{b_i b_j}
 $$
 
 则得到：
 
 $$
-\mathbf{p}_j
-=
-\mathbf{p}_i
-+
-\mathbf{v}_i\Delta t_{ij}
-+
-\frac{1}{2}\mathbf{g}^{w}\Delta t_{ij}^2
-+
+\mathbf{p}_j =
+\mathbf{p}_i +
+\mathbf{v}_i\Delta t_{ij} +
+\frac{1}{2}\mathbf{g}^{w}\Delta t_{ij}^2 +
 \mathbf{R}_{w b_i}\boldsymbol{\alpha}_{ij}
 $$
 
 $$
-\mathbf{v}_j
-=
-\mathbf{v}_i
-+
-\mathbf{g}^{w}\Delta t_{ij}
-+
+\mathbf{v}_j =
+\mathbf{v}_i +
+\mathbf{g}^{w}\Delta t_{ij} +
 \mathbf{R}_{w b_i}\boldsymbol{\beta}_{ij}
 $$
 
 $$
-\mathbf{R}_{w b_j}
-=
+\mathbf{R}_{w b_j} =
 \mathbf{R}_{w b_i}\boldsymbol{\gamma}_{ij}
 $$
 
@@ -309,22 +271,19 @@ $$
 去 bias 后的中值角速度：
 
 $$
-\bar{\boldsymbol{\omega}}_k
-=
+\bar{\boldsymbol{\omega}}_k =
 \frac{1}{2}
 \left(
 \hat{\boldsymbol{\omega}}_k+
 \hat{\boldsymbol{\omega}}_{k+1}
-\right)
--
+\right) -
 \mathbf{b}_g
 $$
 
 旋转增量：
 
 $$
-\delta\boldsymbol{\gamma}_k
-=
+\delta\boldsymbol{\gamma}_k =
 \exp
 \left(
 \bar{\boldsymbol{\omega}}_k\delta t
@@ -334,8 +293,7 @@ $$
 旋转预积分更新：
 
 $$
-\boldsymbol{\gamma}_{k+1}
-=
+\boldsymbol{\gamma}_{k+1} =
 \boldsymbol{\gamma}_k
 \delta\boldsymbol{\gamma}_k
 $$
@@ -343,8 +301,7 @@ $$
 第 $k$ 时刻和 $k+1$ 时刻的局部加速度：
 
 $$
-\mathbf{a}^{i}_k
-=
+\mathbf{a}^{i}_k =
 \boldsymbol{\gamma}_k
 \left(
 \hat{\mathbf{a}}_k-\mathbf{b}_a
@@ -352,8 +309,7 @@ $$
 $$
 
 $$
-\mathbf{a}^{i}_{k+1}
-=
+\mathbf{a}^{i}_{k+1} =
 \boldsymbol{\gamma}_{k+1}
 \left(
 \hat{\mathbf{a}}_{k+1}-\mathbf{b}_a
@@ -363,8 +319,7 @@ $$
 中值加速度：
 
 $$
-\bar{\mathbf{a}}^i_k
-=
+\bar{\mathbf{a}}^i_k =
 \frac{1}{2}
 \left(
 \mathbf{a}^{i}_k+\mathbf{a}^{i}_{k+1}
@@ -374,21 +329,16 @@ $$
 位移和速度预积分更新：
 
 $$
-\boldsymbol{\alpha}_{k+1}
-=
-\boldsymbol{\alpha}_{k}
-+
-\boldsymbol{\beta}_{k}\delta t
-+
+\boldsymbol{\alpha}_{k+1} =
+\boldsymbol{\alpha}_{k} +
+\boldsymbol{\beta}_{k}\delta t +
 \frac{1}{2}
 \bar{\mathbf{a}}^i_k\delta t^2
 $$
 
 $$
-\boldsymbol{\beta}_{k+1}
-=
-\boldsymbol{\beta}_{k}
-+
+\boldsymbol{\beta}_{k+1} =
+\boldsymbol{\beta}_{k} +
 \bar{\mathbf{a}}^i_k\delta t
 $$
 
@@ -406,42 +356,33 @@ $$
 优化过程中 bias 会变成：
 
 $$
-\mathbf{b}_a
-=
+\mathbf{b}_a =
 \bar{\mathbf{b}}_a+\delta\mathbf{b}_a
 $$
 
 $$
-\mathbf{b}_g
-=
+\mathbf{b}_g =
 \bar{\mathbf{b}}_g+\delta\mathbf{b}_g
 $$
 
 如果每次 bias 改变都重新积分，代价很大。于是对预积分量做一阶近似：
 
 $$
-\boldsymbol{\alpha}_{ij}
-\approx
-\hat{\boldsymbol{\alpha}}_{ij}
-+
-\mathbf{J}^{\alpha}_{b_a}\delta\mathbf{b}_a
-+
+\boldsymbol{\alpha}_{ij} \approx
+\hat{\boldsymbol{\alpha}}_{ij} +
+\mathbf{J}^{\alpha}_{b_a}\delta\mathbf{b}_a +
 \mathbf{J}^{\alpha}_{b_g}\delta\mathbf{b}_g
 $$
 
 $$
-\boldsymbol{\beta}_{ij}
-\approx
-\hat{\boldsymbol{\beta}}_{ij}
-+
-\mathbf{J}^{\beta}_{b_a}\delta\mathbf{b}_a
-+
+\boldsymbol{\beta}_{ij} \approx
+\hat{\boldsymbol{\beta}}_{ij} +
+\mathbf{J}^{\beta}_{b_a}\delta\mathbf{b}_a +
 \mathbf{J}^{\beta}_{b_g}\delta\mathbf{b}_g
 $$
 
 $$
-\boldsymbol{\gamma}_{ij}
-\approx
+\boldsymbol{\gamma}_{ij} \approx
 \hat{\boldsymbol{\gamma}}_{ij}
 \exp
 \left(
@@ -462,8 +403,7 @@ $$
 预积分误差状态写成：
 
 $$
-\delta\mathbf{z}
-=
+\delta\mathbf{z} =
 \begin{bmatrix}
 \delta\boldsymbol{\alpha}\\
 \delta\boldsymbol{\theta}\\
@@ -483,10 +423,8 @@ $$
 它的离散传播可以写成：
 
 $$
-\delta\mathbf{z}_{k+1}
-=
-\mathbf{F}_k\delta\mathbf{z}_k
-+
+\delta\mathbf{z}_{k+1} =
+\mathbf{F}_k\delta\mathbf{z}_k +
 \mathbf{V}_k\mathbf{n}_k
 $$
 
@@ -499,8 +437,7 @@ $$
 为了看清楚 $\mathbf{F}_k$ 的结构，可以写成块矩阵：
 
 $$
-\mathbf{F}_k
-=
+\mathbf{F}_k =
 \begin{bmatrix}
 \mathbf{I} & \mathbf{F}_{\alpha\theta} & \mathbf{I}\delta t & \mathbf{F}_{\alpha b_a} & \mathbf{F}_{\alpha b_g}\\
 \mathbf{0} & \mathbf{F}_{\theta\theta} & \mathbf{0} & \mathbf{0} & \mathbf{F}_{\theta b_g}\\
@@ -532,13 +469,11 @@ $$
 \boldsymbol{\gamma}_k\exp(\delta\boldsymbol{\theta}^{\wedge})
 \left(
 \hat{\mathbf{a}}_k-\mathbf{b}_a
-\right)
-\approx
+\right) \approx
 \boldsymbol{\gamma}_k
 \left(
 \hat{\mathbf{a}}_k-\mathbf{b}_a
-\right)
--
+\right) -
 \boldsymbol{\gamma}_k
 \left(
 \hat{\mathbf{a}}_k-\mathbf{b}_a
@@ -555,8 +490,7 @@ $$
 第一，传播预积分量对 bias 的 Jacobian：
 
 $$
-\mathbf{J}_{k+1}
-=
+\mathbf{J}_{k+1} =
 \mathbf{F}_k\mathbf{J}_k
 $$
 
@@ -579,10 +513,8 @@ $$
 第二，传播预积分协方差：
 
 $$
-\mathbf{P}_{k+1}
-=
-\mathbf{F}_k\mathbf{P}_k\mathbf{F}_k^\top
-+
+\mathbf{P}_{k+1} =
+\mathbf{F}_k\mathbf{P}_k\mathbf{F}_k^\top +
 \mathbf{V}_k\mathbf{Q}_k\mathbf{V}_k^\top
 $$
 
@@ -611,8 +543,7 @@ $$
 预积分最终在后端形成 15 维残差：
 
 $$
-\mathbf{r}_{imu}
-=
+\mathbf{r}_{imu} =
 \begin{bmatrix}
 \mathbf{r}_p\\
 \mathbf{r}_q\\
@@ -625,20 +556,17 @@ $$
 其中：
 
 $$
-\mathbf{r}_p
-=
+\mathbf{r}_p =
 \mathbf{R}_i^\top
 \left(
 \mathbf{p}_j-\mathbf{p}_i-\mathbf{v}_i\Delta t_{ij}
 -\frac{1}{2}\mathbf{g}\Delta t_{ij}^2
-\right)
--
+\right) -
 \boldsymbol{\alpha}_{ij}
 $$
 
 $$
-\mathbf{r}_q
-=
+\mathbf{r}_q =
 2\,\text{vec}
 \left(
 \boldsymbol{\gamma}_{ij}^{-1}
@@ -650,25 +578,21 @@ $$
 $$
 
 $$
-\mathbf{r}_v
-=
+\mathbf{r}_v =
 \mathbf{R}_i^\top
 \left(
 \mathbf{v}_j-\mathbf{v}_i-\mathbf{g}\Delta t_{ij}
-\right)
--
+\right) -
 \boldsymbol{\beta}_{ij}
 $$
 
 $$
-\mathbf{r}_{ba}
-=
+\mathbf{r}_{ba} =
 \mathbf{b}_{a,j}-\mathbf{b}_{a,i}
 $$
 
 $$
-\mathbf{r}_{bg}
-=
+\mathbf{r}_{bg} =
 \mathbf{b}_{g,j}-\mathbf{b}_{g,i}
 $$
 
@@ -687,8 +611,7 @@ $$
 设：
 
 $$
-\mathbf{P}_{ij}^{-1}
-=
+\mathbf{P}_{ij}^{-1} =
 \mathbf{L}\mathbf{L}^{\top}
 $$
 
@@ -697,8 +620,7 @@ $$
 $$
 \mathbf{r}_{imu}^{\top}
 \mathbf{P}_{ij}^{-1}
-\mathbf{r}_{imu}
-=
+\mathbf{r}_{imu} =
 \left(
 \mathbf{L}^{\top}\mathbf{r}_{imu}
 \right)^{\top}
@@ -710,8 +632,7 @@ $$
 所以优化器中实际使用的残差可以写成：
 
 $$
-\tilde{\mathbf{r}}_{imu}
-=
+\tilde{\mathbf{r}}_{imu} =
 \mathbf{L}^{\top}\mathbf{r}_{imu}
 $$
 

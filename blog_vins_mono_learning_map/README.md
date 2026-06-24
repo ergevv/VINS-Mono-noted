@@ -28,28 +28,17 @@
 整组文章的主线是：
 
 $$
-\text{多传感器约束}
-\rightarrow
-\text{因子图优化}
-\rightarrow
-\text{通用图模型对照}
-\rightarrow
-\text{IMU 预积分}
-\rightarrow
-\text{后端残差与雅克比}
-\rightarrow
-\text{初始化与时间同步}
-\rightarrow
-\text{前端与闭环}
-\rightarrow
-\text{滑动窗口实时性}
-\rightarrow
-\text{边缘化先验}
-\rightarrow
-\text{FEJ-like prior 与严格 FEJ}
-\rightarrow
-\text{可观性保持与估计一致性}
-\rightarrow
+\text{多传感器约束} \rightarrow
+\text{因子图优化} \rightarrow
+\text{通用图模型对照} \rightarrow
+\text{IMU 预积分} \rightarrow
+\text{后端残差与雅克比} \rightarrow
+\text{初始化与时间同步} \rightarrow
+\text{前端与闭环} \rightarrow
+\text{滑动窗口实时性} \rightarrow
+\text{边缘化先验} \rightarrow
+\text{FEJ-like prior 与严格 FEJ} \rightarrow
+\text{可观性保持与估计一致性} \rightarrow
 \text{弱可观与接触约束秩分析}
 $$
 

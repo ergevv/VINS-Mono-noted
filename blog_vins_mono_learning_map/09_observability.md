@@ -38,8 +38,7 @@ $$
 如果存在一个非零扰动方向 $\mathbf{n}$，使得沿着这个方向改变状态后，预测测量不变：
 
 $$
-\hat{\mathcal{Z}}(\mathcal{X})
-=
+\hat{\mathcal{Z}}(\mathcal{X}) =
 \hat{\mathcal{Z}}(\mathcal{X}\boxplus\epsilon\mathbf{n})
 $$
 
@@ -60,18 +59,15 @@ $$
 在当前点附近线性化：
 
 $$
-\mathbf{r}(\mathcal{X}\boxplus\delta\mathcal{X})
-\approx
-\mathbf{r}(\mathcal{X})
-+
+\mathbf{r}(\mathcal{X}\boxplus\delta\mathcal{X}) \approx
+\mathbf{r}(\mathcal{X}) +
 \mathbf{J}\delta\mathcal{X}
 $$
 
 其中 $\mathbf{J}$ 表示残差雅克比。如果某个方向 $\mathbf{n}$ 满足：
 
 $$
-\mathbf{J}\mathbf{n}
-=
+\mathbf{J}\mathbf{n} =
 \mathbf{0}
 $$
 
@@ -80,16 +76,14 @@ $$
 等价地，Hessian 为：
 
 $$
-\mathbf{H}
-=
+\mathbf{H} =
 \mathbf{J}^{\top}\mathbf{J}
 $$
 
 则：
 
 $$
-\mathbf{H}\mathbf{n}
-=
+\mathbf{H}\mathbf{n} =
 \mathbf{0}
 $$
 
@@ -106,14 +100,12 @@ $$
 其中 $\mathbf{t}_0$ 表示任意全局平移。新的状态为：
 
 $$
-\mathbf{p}'_k
-=
+\mathbf{p}'_k =
 \mathbf{p}_k+\mathbf{t}_0
 $$
 
 $$
-\mathbf{P}'_l
-=
+\mathbf{P}'_l =
 \mathbf{P}_l+\mathbf{t}_0
 $$
 
@@ -126,8 +118,7 @@ $$
 视觉观测依赖相机和空间点之间的相对位置。以第 $k$ 帧观测第 $l$ 个点为例，相机坐标系下的点为：
 
 $$
-\mathbf{P}_{c_k,l}
-=
+\mathbf{P}_{c_k,l} =
 \mathbf{R}_{ck}^{\top}
 \left(
 \mathbf{P}_l-\mathbf{p}_{c_k}
@@ -143,14 +134,11 @@ $$
 平移后：
 
 $$
-\mathbf{P}'_{c_k,l}
-=
+\mathbf{P}'_{c_k,l} =
 \mathbf{R}_{ck}^{\top}
 \left(
-\mathbf{P}_l+\mathbf{t}_0
--
-\mathbf{p}_{c_k}
--
+\mathbf{P}_l+\mathbf{t}_0 -
+\mathbf{p}_{c_k} -
 \mathbf{t}_0
 \right)
 $$
@@ -158,21 +146,18 @@ $$
 消去 $\mathbf{t}_0$：
 
 $$
-\mathbf{P}'_{c_k,l}
-=
+\mathbf{P}'_{c_k,l} =
 \mathbf{R}_{ck}^{\top}
 \left(
 \mathbf{P}_l-\mathbf{p}_{c_k}
-\right)
-=
+\right) =
 \mathbf{P}_{c_k,l}
 $$
 
 因此投影不变：
 
 $$
-\pi(\mathbf{P}'_{c_k,l})
-=
+\pi(\mathbf{P}'_{c_k,l}) =
 \pi(\mathbf{P}_{c_k,l})
 $$
 
@@ -185,12 +170,9 @@ $$
 平移后：
 
 $$
-\mathbf{p}'_{j}-\mathbf{p}'_{i}
-=
-\left(\mathbf{p}_{j}+\mathbf{t}_0\right)
--
-\left(\mathbf{p}_{i}+\mathbf{t}_0\right)
-=
+\mathbf{p}'_{j}-\mathbf{p}'_{i} =
+\left(\mathbf{p}_{j}+\mathbf{t}_0\right) -
+\left(\mathbf{p}_{i}+\mathbf{t}_0\right) =
 \mathbf{p}_{j}-\mathbf{p}_{i}
 $$
 
@@ -207,8 +189,7 @@ $$
 如果把不可观方向写成线性化状态增量，全局平移的零空间基可以表示为：
 
 $$
-\mathbf{N}_{t_x}
-=
+\mathbf{N}_{t_x} =
 \begin{bmatrix}
 \mathbf{e}_x\\
 \mathbf{0}\\
@@ -224,8 +205,7 @@ $$
 \mathbf{e}_x
 \end{bmatrix},
 \quad
-\mathbf{N}_{t_y}
-=
+\mathbf{N}_{t_y} =
 \begin{bmatrix}
 \mathbf{e}_y\\
 \mathbf{0}\\
@@ -241,8 +221,7 @@ $$
 \mathbf{e}_y
 \end{bmatrix},
 \quad
-\mathbf{N}_{t_z}
-=
+\mathbf{N}_{t_z} =
 \begin{bmatrix}
 \mathbf{e}_z\\
 \mathbf{0}\\
@@ -293,28 +272,24 @@ $$
 因为旋转轴就是重力方向，所以：
 
 $$
-\mathbf{R}_{\psi}\mathbf{g}
-=
+\mathbf{R}_{\psi}\mathbf{g} =
 \mathbf{g}
 $$
 
 现在对所有位姿和地图点同时做这个全局 yaw 旋转：
 
 $$
-\mathbf{R}'_k
-=
+\mathbf{R}'_k =
 \mathbf{R}_{\psi}\mathbf{R}_k
 $$
 
 $$
-\mathbf{p}'_k
-=
+\mathbf{p}'_k =
 \mathbf{R}_{\psi}\mathbf{p}_k
 $$
 
 $$
-\mathbf{P}'_l
-=
+\mathbf{P}'_l =
 \mathbf{R}_{\psi}\mathbf{P}_l
 $$
 
@@ -324,12 +299,10 @@ $$
 (\mathbf{R}'_k)^{\top}
 \left(
 \mathbf{P}'_l-\mathbf{p}'_k
-\right)
-=
+\right) =
 (\mathbf{R}_{\psi}\mathbf{R}_k)^{\top}
 \left(
-\mathbf{R}_{\psi}\mathbf{P}_l
--
+\mathbf{R}_{\psi}\mathbf{P}_l -
 \mathbf{R}_{\psi}\mathbf{p}_k
 \right)
 $$
@@ -337,8 +310,7 @@ $$
 展开：
 
 $$
-=
-\mathbf{R}_k^{\top}\mathbf{R}_{\psi}^{\top}
+= \mathbf{R}_k^{\top}\mathbf{R}_{\psi}^{\top}
 \mathbf{R}_{\psi}
 \left(
 \mathbf{P}_l-\mathbf{p}_k
@@ -348,8 +320,7 @@ $$
 因为：
 
 $$
-\mathbf{R}_{\psi}^{\top}\mathbf{R}_{\psi}
-=
+\mathbf{R}_{\psi}^{\top}\mathbf{R}_{\psi} =
 \mathbf{I}
 $$
 
@@ -359,8 +330,7 @@ $$
 (\mathbf{R}'_k)^{\top}
 \left(
 \mathbf{P}'_l-\mathbf{p}'_k
-\right)
-=
+\right) =
 \mathbf{R}_k^{\top}
 \left(
 \mathbf{P}_l-\mathbf{p}_k
@@ -372,8 +342,7 @@ $$
 对 IMU 运动模型而言，重力项也不变，因为：
 
 $$
-\mathbf{R}_{\psi}\mathbf{g}
-=
+\mathbf{R}_{\psi}\mathbf{g} =
 \mathbf{g}
 $$
 
@@ -388,54 +357,42 @@ $$
 全局 yaw 的不可观方向也可以写成一个状态增量。设 yaw 旋转轴单位向量为：
 
 $$
-\mathbf{u}_g
-=
+\mathbf{u}_g =
 \frac{\mathbf{g}}{\|\mathbf{g}\|}
 $$
 
 其中 $\mathbf{u}_g$ 表示重力方向的单位向量。对一个很小的 yaw 扰动 $\delta\psi$，有：
 
 $$
-\mathbf{R}_{\psi}
-\approx
-\mathbf{I}
-+
+\mathbf{R}_{\psi} \approx
+\mathbf{I} +
 \delta\psi\,\mathbf{u}_g^{\wedge}
 $$
 
 对位置有：
 
 $$
-\mathbf{p}'_k
-=
-\mathbf{R}_{\psi}\mathbf{p}_k
-\approx
-\mathbf{p}_k
-+
+\mathbf{p}'_k =
+\mathbf{R}_{\psi}\mathbf{p}_k \approx
+\mathbf{p}_k +
 \delta\psi\,\mathbf{u}_g^{\wedge}\mathbf{p}_k
 $$
 
 因此位置扰动为：
 
 $$
-\delta\mathbf{p}_k
-=
-\mathbf{u}_g^{\wedge}\mathbf{p}_k\,\delta\psi
-=
--
+\delta\mathbf{p}_k =
+\mathbf{u}_g^{\wedge}\mathbf{p}_k\,\delta\psi = -
 \mathbf{p}_k^{\wedge}\mathbf{u}_g\,\delta\psi
 $$
 
 对姿态有：
 
 $$
-\mathbf{R}'_k
-=
-\mathbf{R}_{\psi}\mathbf{R}_k
-\approx
+\mathbf{R}'_k =
+\mathbf{R}_{\psi}\mathbf{R}_k \approx
 \left(
-\mathbf{I}
-+
+\mathbf{I} +
 \delta\psi\,\mathbf{u}_g^{\wedge}
 \right)
 \mathbf{R}_k
@@ -444,38 +401,30 @@ $$
 如果用世界系左扰动表达姿态误差，则姿态扰动方向就是：
 
 $$
-\delta\boldsymbol{\theta}_k
-=
+\delta\boldsymbol{\theta}_k =
 \mathbf{u}_g\,\delta\psi
 $$
 
 类似地，速度也会整体绕重力方向旋转：
 
 $$
-\delta\mathbf{v}_k
-=
-\mathbf{u}_g^{\wedge}\mathbf{v}_k\,\delta\psi
-=
--
+\delta\mathbf{v}_k =
+\mathbf{u}_g^{\wedge}\mathbf{v}_k\,\delta\psi = -
 \mathbf{v}_k^{\wedge}\mathbf{u}_g\,\delta\psi
 $$
 
 地图点位置扰动为：
 
 $$
-\delta\mathbf{P}_l
-=
-\mathbf{u}_g^{\wedge}\mathbf{P}_l\,\delta\psi
-=
--
+\delta\mathbf{P}_l =
+\mathbf{u}_g^{\wedge}\mathbf{P}_l\,\delta\psi = -
 \mathbf{P}_l^{\wedge}\mathbf{u}_g\,\delta\psi
 $$
 
 所以，全局 yaw 的零空间方向可以概念性写成：
 
 $$
-\mathbf{N}_{yaw}
-=
+\mathbf{N}_{yaw} =
 \begin{bmatrix}
 -\mathbf{p}_0^{\wedge}\mathbf{u}_g\\
 \mathbf{u}_g\\
@@ -498,8 +447,7 @@ $$
 把三个全局平移方向和一个全局 yaw 方向合起来，就得到不可观子空间基矩阵：
 
 $$
-\mathbf{N}
-=
+\mathbf{N} =
 \begin{bmatrix}
 \mathbf{N}_{t_x} &
 \mathbf{N}_{t_y} &
@@ -511,8 +459,7 @@ $$
 理想情况下，所有正确构造的线性化因子都应该满足：
 
 $$
-\mathbf{J}\mathbf{N}
-=
+\mathbf{J}\mathbf{N} =
 \mathbf{0}
 $$
 
@@ -531,8 +478,7 @@ $$
 视觉投影仍然不变，因为投影会除以深度：
 
 $$
-\pi(s\mathbf{P})
-=
+\pi(s\mathbf{P}) =
 \pi(\mathbf{P})
 $$
 
@@ -547,8 +493,7 @@ $$
 在没有 GPS、磁力计、已知地图或其他全局观测的情况下，初始化后的单目 VIO 通常有四个不可观自由度：
 
 $$
-3\text{ DOF global translation}
-+
+3\text{ DOF global translation} +
 1\text{ DOF global yaw}
 $$
 
@@ -557,8 +502,7 @@ $$
 可以写成：
 
 $$
-\dim(\mathcal{N})
-=
+\dim(\mathcal{N}) =
 4
 $$
 
@@ -610,10 +554,8 @@ $$
 边缘化之后，$\mathbf{x}_0$ 不再参与后续优化。它对保留变量的影响被压缩成边缘化先验：
 
 $$
-\mathbf{r}_{\text{prior}}(\mathcal{X}_r)
-\approx
-\mathbf{r}^{\text{prior}}(\bar{\mathcal{X}}_r)
-+
+\mathbf{r}_{\text{prior}}(\mathcal{X}_r) \approx
+\mathbf{r}^{\text{prior}}(\bar{\mathcal{X}}_r) +
 \mathbf{J}^{\text{prior}}(\bar{\mathcal{X}}_r)
 \left(
 \mathcal{X}_r\boxminus\bar{\mathcal{X}}_r
@@ -651,8 +593,7 @@ $$
 如果一个方向本来不可观，估计器就不应该在这个方向上变得非常自信。数学上，如果 $\mathbf{n}$ 是不可观方向，那么理想情况下：
 
 $$
-\mathbf{H}\mathbf{n}
-=
+\mathbf{H}\mathbf{n} =
 \mathbf{0}
 $$
 
@@ -661,8 +602,7 @@ $$
 如果由于线性化或边缘化错误，得到：
 
 $$
-\mathbf{H}\mathbf{n}
-\neq
+\mathbf{H}\mathbf{n} \neq
 \mathbf{0}
 $$
 
@@ -675,8 +615,7 @@ $$
 假设某个残差在真实非线性意义下对不可观变换不敏感：
 
 $$
-\mathbf{r}(\mathcal{X})
-=
+\mathbf{r}(\mathcal{X}) =
 \mathbf{r}(\mathcal{T}_{\alpha}(\mathcal{X}))
 $$
 
@@ -688,8 +627,7 @@ $$
 在理想线性化点下，不可观方向 $\mathbf{n}$ 应满足：
 
 $$
-\mathbf{J}\mathbf{n}
-=
+\mathbf{J}\mathbf{n} =
 \mathbf{0}
 $$
 
@@ -706,8 +644,7 @@ $$
 那么满足测量的解不是一个点，而是一条曲线：
 
 $$
-\mathcal{M}
-=
+\mathcal{M} =
 \left\{
 (x,y)\mid xy=1
 \right\}
@@ -718,28 +655,23 @@ $$
 定义残差：
 
 $$
-r(x,y)
-=
+r(x,y) =
 xy-1
 $$
 
 在点 $(\bar{x},\bar{y})$ 处线性化：
 
 $$
-r(x,y)
-\approx
-\bar{x}\bar{y}-1
-+
-\bar{y}(x-\bar{x})
-+
+r(x,y) \approx
+\bar{x}\bar{y}-1 +
+\bar{y}(x-\bar{x}) +
 \bar{x}(y-\bar{y})
 $$
 
 Jacobian 为：
 
 $$
-\mathbf{J}(\bar{x},\bar{y})
-=
+\mathbf{J}(\bar{x},\bar{y}) =
 \begin{bmatrix}
 \bar{y} & \bar{x}
 \end{bmatrix}
@@ -754,8 +686,7 @@ $$
 可以取：
 
 $$
-\mathbf{n}(\bar{x},\bar{y})
-=
+\mathbf{n}(\bar{x},\bar{y}) =
 \begin{bmatrix}
 \bar{x}\\
 -\bar{y}
@@ -765,16 +696,14 @@ $$
 注意这个方向依赖线性化点。如果两个因子本来描述同一条不可观曲线，但分别在不同点线性化：
 
 $$
-(\bar{x}_1,\bar{y}_1)
-\neq
+(\bar{x}_1,\bar{y}_1) \neq
 (\bar{x}_2,\bar{y}_2)
 $$
 
 那么它们对应的零空间方向一般不同：
 
 $$
-\mathbf{n}(\bar{x}_1,\bar{y}_1)
-\neq
+\mathbf{n}(\bar{x}_1,\bar{y}_1) \neq
 \mathbf{n}(\bar{x}_2,\bar{y}_2)
 $$
 
@@ -789,10 +718,8 @@ $$
 边缘化先验不同。它已经把历史非线性信息压缩成：
 
 $$
-\mathbf{r}_{\text{prior}}
-=
-\mathbf{r}^{\text{prior}}_0
-+
+\mathbf{r}_{\text{prior}} =
+\mathbf{r}^{\text{prior}}_0 +
 \mathbf{J}^{\text{prior}}
 \delta\mathcal{X}_r
 $$
@@ -802,8 +729,7 @@ $$
 一旦先验在不可观方向上产生了非零响应：
 
 $$
-\mathbf{J}^{\text{prior}}\mathbf{n}
-\neq
+\mathbf{J}^{\text{prior}}\mathbf{n} \neq
 \mathbf{0}
 $$
 
@@ -816,8 +742,7 @@ $$
 边缘化 prior 固定线性化结构的核心做法是：
 
 $$
-\mathbf{J}^{\text{prior}}
-=
+\mathbf{J}^{\text{prior}} =
 \mathbf{J}^{\text{prior}}(\bar{\mathcal{X}})
 $$
 
@@ -826,10 +751,8 @@ $$
 后续先验残差更新为：
 
 $$
-\mathbf{r}_{\text{prior}}(\mathcal{X})
-=
-\mathbf{r}^{\text{prior}}_0
-+
+\mathbf{r}_{\text{prior}}(\mathcal{X}) =
+\mathbf{r}^{\text{prior}}_0 +
 \mathbf{J}^{\text{prior}}(\bar{\mathcal{X}})
 \left(
 \mathcal{X}\boxminus\bar{\mathcal{X}}
@@ -843,14 +766,12 @@ $$
 因此：
 
 $$
-\text{VINS-Mono 的边缘化 prior}
-\Rightarrow
+\text{VINS-Mono 的边缘化 prior} \Rightarrow
 \text{固定 prior 的线性化结构}
 $$
 
 $$
-\text{严格 FEJ}
-\Rightarrow
+\text{严格 FEJ} \Rightarrow
 \text{更系统地固定相关雅克比的 first estimate}
 $$
 
@@ -861,8 +782,7 @@ $$
 可以抽象为：
 
 $$
-\mathbf{J}_{\text{modified}}\mathbf{N}
-=
+\mathbf{J}_{\text{modified}}\mathbf{N} =
 \mathbf{0}
 $$
 
@@ -876,14 +796,12 @@ FEJ 更简单。它不一定显式构造 $\mathbf{N}$，而是固定某些关键
 可以粗略理解为：
 
 $$
-\text{OC}
-\Rightarrow
+\text{OC} \Rightarrow
 \text{显式约束零空间}
 $$
 
 $$
-\text{FEJ}
-\Rightarrow
+\text{FEJ} \Rightarrow
 \text{固定线性化点以保持零空间结构}
 $$
 

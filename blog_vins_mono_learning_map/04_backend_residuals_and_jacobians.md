@@ -33,8 +33,7 @@ $$
 VINS-Mono 后端的状态可以抽象写成：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \left[
 \mathbf{x}_0,\mathbf{x}_1,\dots,\mathbf{x}_N,\,
 \mathbf{x}_{bc},\,
@@ -54,8 +53,7 @@ $$
 单帧 IMU 状态为：
 
 $$
-\mathbf{x}_k
-=
+\mathbf{x}_k =
 \left[
 \mathbf{p}_k,\,
 \mathbf{q}_k,\,
@@ -77,8 +75,7 @@ $$
 外参写成：
 
 $$
-\mathbf{x}_{bc}
-=
+\mathbf{x}_{bc} =
 \left[
 \mathbf{p}_{bc},\,
 \mathbf{q}_{bc}
@@ -94,10 +91,8 @@ $$
 因此，一个相机系点 $\mathbf{P}_c$ 可以变换到 IMU 机体系：
 
 $$
-\mathbf{P}_b
-=
-\mathbf{R}_{bc}\mathbf{P}_c
-+
+\mathbf{P}_b =
+\mathbf{R}_{bc}\mathbf{P}_c +
 \mathbf{p}_{bc}
 $$
 
@@ -130,8 +125,7 @@ $$
 如果把所有测量记为 $\mathcal{Z}$，后端要求的是最大后验估计：
 
 $$
-\mathcal{X}^{*}
-=
+\mathcal{X}^{*} =
 \arg\max_{\mathcal{X}}
 p(\mathcal{X}\mid\mathcal{Z})
 $$
@@ -153,8 +147,7 @@ $$
 如果每个测量误差都服从零均值高斯分布：
 
 $$
-\mathbf{r}_i(\mathcal{X})
-\sim
+\mathbf{r}_i(\mathcal{X}) \sim
 \mathcal{N}(\mathbf{0},\mathbf{\Sigma}_i)
 $$
 
@@ -167,22 +160,19 @@ $$
 那么负对数似然可以写成：
 
 $$
--\log p(\mathcal{Z}\mid\mathcal{X})
-=
+-\log p(\mathcal{Z}\mid\mathcal{X}) =
 \frac{1}{2}
 \sum_i
 \mathbf{r}_i(\mathcal{X})^{\top}
 \mathbf{\Omega}_i
-\mathbf{r}_i(\mathcal{X})
-+
+\mathbf{r}_i(\mathcal{X}) +
 \text{const}
 $$
 
 去掉常数项和不影响最优解的系数 $\frac{1}{2}$，得到最小二乘问题：
 
 $$
-\mathcal{X}^{*}
-=
+\mathcal{X}^{*} =
 \arg\min_{\mathcal{X}}
 \sum_i
 \left\|
@@ -195,8 +185,7 @@ $$
 $$
 \left\|
 \mathbf{r}
-\right\|_{\mathbf{\Omega}}^{2}
-=
+\right\|_{\mathbf{\Omega}}^{2} =
 \mathbf{r}^{\top}\mathbf{\Omega}\mathbf{r}
 $$
 
@@ -207,13 +196,11 @@ $$
 \left(
 \left\|
 \mathbf{r}_{p}(\mathcal{X})
-\right\|^{2}
-+
+\right\|^{2} +
 \sum_{k}
 \left\|
 \mathbf{r}_{imu,k}(\hat{\mathbf{z}}_{k,k+1},\mathcal{X})
-\right\|^{2}_{\mathbf{P}_{imu,k}^{-1}}
-+
+\right\|^{2}_{\mathbf{P}_{imu,k}^{-1}} +
 \sum_{(l,j)}
 \rho
 \left(
@@ -238,8 +225,7 @@ $$
 这个目标函数就是因子图的代数形式：
 
 $$
-\text{一个残差项}
-\quad\Longleftrightarrow\quad
+\text{一个残差项} \Longleftrightarrow
 \text{一个因子}
 $$
 
@@ -250,8 +236,7 @@ VINS 的残差通常是非线性的，因为里面有旋转、投影、逆深度
 设当前状态估计为 $\bar{\mathcal{X}}$，对状态施加一个小扰动 $\delta\boldsymbol{\chi}$：
 
 $$
-\mathcal{X}
-=
+\mathcal{X} =
 \bar{\mathcal{X}}\boxplus\delta\boldsymbol{\chi}
 $$
 
@@ -264,18 +249,15 @@ $$
 对第 $i$ 个残差做一阶泰勒展开：
 
 $$
-\mathbf{r}_i(\bar{\mathcal{X}}\boxplus\delta\boldsymbol{\chi})
-\approx
-\mathbf{r}_i(\bar{\mathcal{X}})
-+
+\mathbf{r}_i(\bar{\mathcal{X}}\boxplus\delta\boldsymbol{\chi}) \approx
+\mathbf{r}_i(\bar{\mathcal{X}}) +
 \mathbf{J}_i\delta\boldsymbol{\chi}
 $$
 
 其中：
 
 $$
-\mathbf{J}_i
-=
+\mathbf{J}_i =
 \frac{\partial
 \mathbf{r}_i(\bar{\mathcal{X}}\boxplus\delta\boldsymbol{\chi})
 }
@@ -307,8 +289,7 @@ $$
 \mathbf{J}_i^{\top}\mathbf{\Omega}_i
 \left(
 \mathbf{r}_i+\mathbf{J}_i\delta\boldsymbol{\chi}
-\right)
-=
+\right) =
 \mathbf{0}
 $$
 
@@ -319,9 +300,7 @@ $$
 \sum_i
 \mathbf{J}_i^{\top}\mathbf{\Omega}_i\mathbf{J}_i
 \right)
-\delta\boldsymbol{\chi}
-=
--
+\delta\boldsymbol{\chi} = -
 \sum_i
 \mathbf{J}_i^{\top}\mathbf{\Omega}_i\mathbf{r}_i
 $$
@@ -329,16 +308,13 @@ $$
 令：
 
 $$
-\mathbf{H}
-=
+\mathbf{H} =
 \sum_i
 \mathbf{J}_i^{\top}\mathbf{\Omega}_i\mathbf{J}_i
 $$
 
 $$
-\mathbf{b}
-=
--
+\mathbf{b} = -
 \sum_i
 \mathbf{J}_i^{\top}\mathbf{\Omega}_i\mathbf{r}_i
 $$
@@ -346,8 +322,7 @@ $$
 则得到增量方程：
 
 $$
-\mathbf{H}\delta\boldsymbol{\chi}
-=
+\mathbf{H}\delta\boldsymbol{\chi} =
 \mathbf{b}
 $$
 
@@ -360,8 +335,7 @@ $$
 求出 $\delta\boldsymbol{\chi}$ 后，更新状态：
 
 $$
-\bar{\mathcal{X}}
-\leftarrow
+\bar{\mathcal{X}} \leftarrow
 \bar{\mathcal{X}}\boxplus\delta\boldsymbol{\chi}
 $$
 
@@ -407,30 +381,22 @@ $$
 第 03 篇已经推导过预积分关系：
 
 $$
-\mathbf{p}_j
-=
-\mathbf{p}_i
-+
-\mathbf{v}_i\Delta t_{ij}
-+
-\frac{1}{2}\mathbf{g}\Delta t_{ij}^{2}
-+
+\mathbf{p}_j =
+\mathbf{p}_i +
+\mathbf{v}_i\Delta t_{ij} +
+\frac{1}{2}\mathbf{g}\Delta t_{ij}^{2} +
 \mathbf{R}_i\boldsymbol{\alpha}_{ij}
 $$
 
 $$
-\mathbf{v}_j
-=
-\mathbf{v}_i
-+
-\mathbf{g}\Delta t_{ij}
-+
+\mathbf{v}_j =
+\mathbf{v}_i +
+\mathbf{g}\Delta t_{ij} +
 \mathbf{R}_i\boldsymbol{\beta}_{ij}
 $$
 
 $$
-\mathbf{q}_j
-=
+\mathbf{q}_j =
 \mathbf{q}_i
 \otimes
 \boldsymbol{\gamma}_{ij}
@@ -465,42 +431,33 @@ $$
 定义 bias 变化量：
 
 $$
-\delta\mathbf{b}_{a,i}
-=
+\delta\mathbf{b}_{a,i} =
 \mathbf{b}_{a,i}-\bar{\mathbf{b}}_{a,i}
 $$
 
 $$
-\delta\mathbf{b}_{g,i}
-=
+\delta\mathbf{b}_{g,i} =
 \mathbf{b}_{g,i}-\bar{\mathbf{b}}_{g,i}
 $$
 
 为了避免每次 bias 改变都重新积分 IMU，使用一阶修正：
 
 $$
-\boldsymbol{\alpha}_{ij}^{c}
-=
-\hat{\boldsymbol{\alpha}}_{ij}
-+
-\mathbf{J}^{\alpha}_{b_a}\delta\mathbf{b}_{a,i}
-+
+\boldsymbol{\alpha}_{ij}^{c} =
+\hat{\boldsymbol{\alpha}}_{ij} +
+\mathbf{J}^{\alpha}_{b_a}\delta\mathbf{b}_{a,i} +
 \mathbf{J}^{\alpha}_{b_g}\delta\mathbf{b}_{g,i}
 $$
 
 $$
-\boldsymbol{\beta}_{ij}^{c}
-=
-\hat{\boldsymbol{\beta}}_{ij}
-+
-\mathbf{J}^{\beta}_{b_a}\delta\mathbf{b}_{a,i}
-+
+\boldsymbol{\beta}_{ij}^{c} =
+\hat{\boldsymbol{\beta}}_{ij} +
+\mathbf{J}^{\beta}_{b_a}\delta\mathbf{b}_{a,i} +
 \mathbf{J}^{\beta}_{b_g}\delta\mathbf{b}_{g,i}
 $$
 
 $$
-\boldsymbol{\gamma}_{ij}^{c}
-=
+\boldsymbol{\gamma}_{ij}^{c} =
 \hat{\boldsymbol{\gamma}}_{ij}
 \otimes
 \delta\mathbf{q}
@@ -525,8 +482,7 @@ $$
 IMU 残差写成：
 
 $$
-\mathbf{r}_{imu}
-=
+\mathbf{r}_{imu} =
 \begin{bmatrix}
 \mathbf{r}_p\\
 \mathbf{r}_q\\
@@ -541,23 +497,19 @@ $$
 其中位置残差为：
 
 $$
-\mathbf{r}_p
-=
+\mathbf{r}_p =
 \mathbf{R}_i^{\top}
 \left(
-\mathbf{p}_j-\mathbf{p}_i-\mathbf{v}_i\Delta t_{ij}
--
+\mathbf{p}_j-\mathbf{p}_i-\mathbf{v}_i\Delta t_{ij} -
 \frac{1}{2}\mathbf{g}\Delta t_{ij}^{2}
-\right)
--
+\right) -
 \boldsymbol{\alpha}_{ij}^{c}
 $$
 
 姿态残差为：
 
 $$
-\mathbf{r}_q
-=
+\mathbf{r}_q =
 2\,\operatorname{vec}
 \left(
 \left(
@@ -573,29 +525,25 @@ $$
 速度残差为：
 
 $$
-\mathbf{r}_v
-=
+\mathbf{r}_v =
 \mathbf{R}_i^{\top}
 \left(
 \mathbf{v}_j-\mathbf{v}_i-\mathbf{g}\Delta t_{ij}
-\right)
--
+\right) -
 \boldsymbol{\beta}_{ij}^{c}
 $$
 
 加速度计 bias 残差为：
 
 $$
-\mathbf{r}_{ba}
-=
+\mathbf{r}_{ba} =
 \mathbf{b}_{a,j}-\mathbf{b}_{a,i}
 $$
 
 陀螺仪 bias 残差为：
 
 $$
-\mathbf{r}_{bg}
-=
+\mathbf{r}_{bg} =
 \mathbf{b}_{g,j}-\mathbf{b}_{g,i}
 $$
 
@@ -604,8 +552,7 @@ $$
 为什么姿态残差前面有 $2$？当误差四元数很小时，可以写成：
 
 $$
-\delta\mathbf{q}
-\approx
+\delta\mathbf{q} \approx
 \begin{bmatrix}
 1\\
 \frac{1}{2}\delta\boldsymbol{\theta}
@@ -615,8 +562,7 @@ $$
 因此：
 
 $$
-\delta\boldsymbol{\theta}
-\approx
+\delta\boldsymbol{\theta} \approx
 2\,\operatorname{vec}(\delta\mathbf{q})
 $$
 
@@ -625,8 +571,7 @@ $$
 如果 IMU 残差全部为零，含义是：
 
 $$
-\text{当前两帧状态预测出的相对运动}
-=
+\text{当前两帧状态预测出的相对运动} =
 \text{IMU 预积分测到的相对运动}
 $$
 
@@ -635,8 +580,7 @@ $$
 IMU 残差对四个参数块求导：
 
 $$
-\mathbf{J}_{imu}
-=
+\mathbf{J}_{imu} =
 \left[
 \mathbf{J}_{\pi_i},\,
 \mathbf{J}_{s_i},\,
@@ -648,28 +592,24 @@ $$
 其中：
 
 $$
-\boldsymbol{\pi}_i
-=
+\boldsymbol{\pi}_i =
 \left[
 \mathbf{p}_i,\mathbf{q}_i
 \right],
 \quad
-\mathbf{s}_i
-=
+\mathbf{s}_i =
 \left[
 \mathbf{v}_i,\mathbf{b}_{a,i},\mathbf{b}_{g,i}
 \right]
 $$
 
 $$
-\boldsymbol{\pi}_j
-=
+\boldsymbol{\pi}_j =
 \left[
 \mathbf{p}_j,\mathbf{q}_j
 \right],
 \quad
-\mathbf{s}_j
-=
+\mathbf{s}_j =
 \left[
 \mathbf{v}_j,\mathbf{b}_{a,j},\mathbf{b}_{g,j}
 \right]
@@ -678,14 +618,12 @@ $$
 局部扰动为：
 
 $$
-\delta\boldsymbol{\pi}_i
-=
+\delta\boldsymbol{\pi}_i =
 \left[
 \delta\mathbf{p}_i,\delta\boldsymbol{\theta}_i
 \right],
 \quad
-\delta\mathbf{s}_i
-=
+\delta\mathbf{s}_i =
 \left[
 \delta\mathbf{v}_i,\delta\mathbf{b}_{a,i},\delta\mathbf{b}_{g,i}
 \right]
@@ -696,58 +634,47 @@ $$
 定义：
 
 $$
-\mathbf{a}_p
-=
-\mathbf{p}_j-\mathbf{p}_i-\mathbf{v}_i\Delta t_{ij}
--
+\mathbf{a}_p =
+\mathbf{p}_j-\mathbf{p}_i-\mathbf{v}_i\Delta t_{ij} -
 \frac{1}{2}\mathbf{g}\Delta t_{ij}^{2}
 $$
 
 则：
 
 $$
-\mathbf{r}_p
-=
-\mathbf{R}_i^\top\mathbf{a}_p
--
+\mathbf{r}_p =
+\mathbf{R}_i^\top\mathbf{a}_p -
 \boldsymbol{\alpha}_{ij}^{c}
 $$
 
 位置相关 Jacobian 很直观：
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{p}_i}
-=
--
+\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{p}_i} = -
 \mathbf{R}_i^\top
 $$
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{p}_j}
-=
+\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{p}_j} =
 \mathbf{R}_i^\top
 $$
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{v}_i}
-=
--
+\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{v}_i} = -
 \mathbf{R}_i^\top\Delta t_{ij}
 $$
 
 如果采用右扰动：
 
 $$
-\mathbf{R}_i
-\leftarrow
+\mathbf{R}_i \leftarrow
 \mathbf{R}_i\exp(\delta\boldsymbol{\theta}_i^{\wedge})
 $$
 
 则：
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\boldsymbol{\theta}_i}
-\approx
+\frac{\partial\mathbf{r}_p}{\partial\delta\boldsymbol{\theta}_i} \approx
 \left(
 \mathbf{R}_i^\top\mathbf{a}_p
 \right)^{\wedge}
@@ -756,14 +683,10 @@ $$
 这个式子来自小角度近似：
 
 $$
-\exp(-\delta\boldsymbol{\theta}^{\wedge})\mathbf{y}
-\approx
-\mathbf{y}
--
-\delta\boldsymbol{\theta}^{\wedge}\mathbf{y}
-=
-\mathbf{y}
-+
+\exp(-\delta\boldsymbol{\theta}^{\wedge})\mathbf{y} \approx
+\mathbf{y} -
+\delta\boldsymbol{\theta}^{\wedge}\mathbf{y} =
+\mathbf{y} +
 \mathbf{y}^{\wedge}\delta\boldsymbol{\theta}
 $$
 
@@ -772,39 +695,32 @@ $$
 再看速度残差。定义：
 
 $$
-\mathbf{a}_v
-=
+\mathbf{a}_v =
 \mathbf{v}_j-\mathbf{v}_i-\mathbf{g}\Delta t_{ij}
 $$
 
 则：
 
 $$
-\mathbf{r}_v
-=
-\mathbf{R}_i^\top\mathbf{a}_v
--
+\mathbf{r}_v =
+\mathbf{R}_i^\top\mathbf{a}_v -
 \boldsymbol{\beta}_{ij}^{c}
 $$
 
 所以：
 
 $$
-\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{v}_i}
-=
--
+\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{v}_i} = -
 \mathbf{R}_i^\top
 $$
 
 $$
-\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{v}_j}
-=
+\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{v}_j} =
 \mathbf{R}_i^\top
 $$
 
 $$
-\frac{\partial\mathbf{r}_v}{\partial\delta\boldsymbol{\theta}_i}
-\approx
+\frac{\partial\mathbf{r}_v}{\partial\delta\boldsymbol{\theta}_i} \approx
 \left(
 \mathbf{R}_i^\top\mathbf{a}_v
 \right)^{\wedge}
@@ -813,63 +729,47 @@ $$
 bias 相关 Jacobian 来自 bias 一阶修正。因为残差中减去了修正后的预积分量，所以：
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{b}_{a,i}}
-=
--
+\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{b}_{a,i}} = -
 \mathbf{J}^{\alpha}_{b_a}
 $$
 
 $$
-\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{b}_{g,i}}
-=
--
+\frac{\partial\mathbf{r}_p}{\partial\delta\mathbf{b}_{g,i}} = -
 \mathbf{J}^{\alpha}_{b_g}
 $$
 
 $$
-\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{b}_{a,i}}
-=
--
+\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{b}_{a,i}} = -
 \mathbf{J}^{\beta}_{b_a}
 $$
 
 $$
-\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{b}_{g,i}}
-=
--
+\frac{\partial\mathbf{r}_v}{\partial\delta\mathbf{b}_{g,i}} = -
 \mathbf{J}^{\beta}_{b_g}
 $$
 
 姿态残差对陀螺仪 bias 的一阶影响可理解为：
 
 $$
-\frac{\partial\mathbf{r}_q}{\partial\delta\mathbf{b}_{g,i}}
-\approx
--
+\frac{\partial\mathbf{r}_q}{\partial\delta\mathbf{b}_{g,i}} \approx -
 \mathbf{J}^{\gamma}_{b_g}
 $$
 
 最后，bias 随机游走残差非常简单：
 
 $$
-\frac{\partial\mathbf{r}_{ba}}{\partial\delta\mathbf{b}_{a,i}}
-=
--
+\frac{\partial\mathbf{r}_{ba}}{\partial\delta\mathbf{b}_{a,i}} = -
 \mathbf{I},
 \quad
-\frac{\partial\mathbf{r}_{ba}}{\partial\delta\mathbf{b}_{a,j}}
-=
+\frac{\partial\mathbf{r}_{ba}}{\partial\delta\mathbf{b}_{a,j}} =
 \mathbf{I}
 $$
 
 $$
-\frac{\partial\mathbf{r}_{bg}}{\partial\delta\mathbf{b}_{g,i}}
-=
--
+\frac{\partial\mathbf{r}_{bg}}{\partial\delta\mathbf{b}_{g,i}} = -
 \mathbf{I},
 \quad
-\frac{\partial\mathbf{r}_{bg}}{\partial\delta\mathbf{b}_{g,j}}
-=
+\frac{\partial\mathbf{r}_{bg}}{\partial\delta\mathbf{b}_{g,j}} =
 \mathbf{I}
 $$
 
@@ -902,8 +802,7 @@ $$
 设第 $l$ 个特征点在宿主帧 $i$ 的归一化平面观测为：
 
 $$
-\bar{\mathbf{u}}_{i,l}
-=
+\bar{\mathbf{u}}_{i,l} =
 \begin{bmatrix}
 u_{i,l}\\
 v_{i,l}\\
@@ -920,16 +819,14 @@ $$
 逆深度定义为：
 
 $$
-\lambda_l
-=
+\lambda_l =
 \frac{1}{d_l}
 $$
 
 其中 $d_l$ 是该点在宿主帧相机坐标系下的深度。因此三维点在宿主帧相机坐标系中的坐标为：
 
 $$
-\mathbf{P}_{c_i,l}
-=
+\mathbf{P}_{c_i,l} =
 \frac{1}{\lambda_l}
 \bar{\mathbf{u}}_{i,l}
 $$
@@ -941,28 +838,23 @@ $$
 先从宿主帧相机系变到宿主帧 IMU 系：
 
 $$
-\mathbf{P}_{b_i,l}
-=
-\mathbf{R}_{bc}\mathbf{P}_{c_i,l}
-+
+\mathbf{P}_{b_i,l} =
+\mathbf{R}_{bc}\mathbf{P}_{c_i,l} +
 \mathbf{p}_{bc}
 $$
 
 再变到世界系：
 
 $$
-\mathbf{P}_{w,l}
-=
-\mathbf{R}_i\mathbf{P}_{b_i,l}
-+
+\mathbf{P}_{w,l} =
+\mathbf{R}_i\mathbf{P}_{b_i,l} +
 \mathbf{p}_i
 $$
 
 再变到目标帧 IMU 系：
 
 $$
-\mathbf{P}_{b_j,l}
-=
+\mathbf{P}_{b_j,l} =
 \mathbf{R}_j^\top
 \left(
 \mathbf{P}_{w,l}-\mathbf{p}_j
@@ -972,8 +864,7 @@ $$
 最后变到目标帧相机系：
 
 $$
-\mathbf{P}_{c_j,l}
-=
+\mathbf{P}_{c_j,l} =
 \mathbf{R}_{bc}^{\top}
 \left(
 \mathbf{P}_{b_j,l}-\mathbf{p}_{bc}
@@ -983,8 +874,7 @@ $$
 把上面几步合起来：
 
 $$
-\mathbf{P}_{c_j,l}
-=
+\mathbf{P}_{c_j,l} =
 \mathbf{R}_{bc}^{\top}
 \left[
 \mathbf{R}_j^\top
@@ -993,16 +883,12 @@ $$
 \left(
 \mathbf{R}_{bc}
 \frac{1}{\lambda_l}
-\bar{\mathbf{u}}_{i,l}
-+
+\bar{\mathbf{u}}_{i,l} +
 \mathbf{p}_{bc}
-\right)
-+
-\mathbf{p}_i
--
+\right) +
+\mathbf{p}_i -
 \mathbf{p}_j
-\right)
--
+\right) -
 \mathbf{p}_{bc}
 \right]
 $$
@@ -1018,8 +904,7 @@ $$
 设：
 
 $$
-\mathbf{P}_{c_j,l}
-=
+\mathbf{P}_{c_j,l} =
 \begin{bmatrix}
 X\\Y\\Z
 \end{bmatrix}
@@ -1033,8 +918,7 @@ $$
 \begin{bmatrix}
 X\\Y\\Z
 \end{bmatrix}
-\right)
-=
+\right) =
 \begin{bmatrix}
 X/Z\\
 Y/Z
@@ -1044,8 +928,7 @@ $$
 第 $j$ 帧实际观测为：
 
 $$
-\mathbf{z}_{j,l}
-=
+\mathbf{z}_{j,l} =
 \begin{bmatrix}
 u_{j,l}\\
 v_{j,l}
@@ -1055,10 +938,8 @@ $$
 则最常见的重投影残差为：
 
 $$
-\mathbf{r}_{proj,l,j}
-=
-\pi(\mathbf{P}_{c_j,l})
--
+\mathbf{r}_{proj,l,j} =
+\pi(\mathbf{P}_{c_j,l}) -
 \mathbf{z}_{j,l}
 $$
 
@@ -1067,8 +948,7 @@ $$
 投影函数的 Jacobian 是：
 
 $$
-\frac{\partial\pi}{\partial\mathbf{P}_{c_j,l}}
-=
+\frac{\partial\pi}{\partial\mathbf{P}_{c_j,l}} =
 \begin{bmatrix}
 \frac{1}{Z} & 0 & -\frac{X}{Z^2}\\
 0 & \frac{1}{Z} & -\frac{Y}{Z^2}
@@ -1084,8 +964,7 @@ VINS-Mono 还常用单位球面上的视觉残差。它不是直接比较归一�
 预测方向为：
 
 $$
-\mathbf{d}_{pred}
-=
+\mathbf{d}_{pred} =
 \frac{\mathbf{P}_{c_j,l}}
 {\left\|\mathbf{P}_{c_j,l}\right\|}
 $$
@@ -1093,8 +972,7 @@ $$
 观测方向为：
 
 $$
-\mathbf{d}_{obs}
-=
+\mathbf{d}_{obs} =
 \frac{
 \begin{bmatrix}
 u_{j,l}\\
@@ -1126,8 +1004,7 @@ $$
 定义：
 
 $$
-\mathbf{B}
-=
+\mathbf{B} =
 \begin{bmatrix}
 \mathbf{b}_1 & \mathbf{b}_2
 \end{bmatrix}
@@ -1138,12 +1015,10 @@ $$
 则球面切平面残差为：
 
 $$
-\mathbf{r}_{sphere,l,j}
-=
+\mathbf{r}_{sphere,l,j} =
 \mathbf{B}^{\top}
 \left(
-\mathbf{d}_{pred}
--
+\mathbf{d}_{pred} -
 \mathbf{d}_{obs}
 \right)
 \in
@@ -1154,12 +1029,10 @@ $$
 
 $$
 \frac{\partial\mathbf{d}_{pred}}
-{\partial\mathbf{P}_{c_j,l}}
-=
+{\partial\mathbf{P}_{c_j,l}} =
 \frac{1}{\left\|\mathbf{P}_{c_j,l}\right\|}
 \left(
-\mathbf{I}
--
+\mathbf{I} -
 \mathbf{d}_{pred}\mathbf{d}_{pred}^{\top}
 \right)
 $$
@@ -1168,13 +1041,11 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{sphere,l,j}}
-{\partial\mathbf{P}_{c_j,l}}
-=
+{\partial\mathbf{P}_{c_j,l}} =
 \mathbf{B}^{\top}
 \frac{1}{\left\|\mathbf{P}_{c_j,l}\right\|}
 \left(
-\mathbf{I}
--
+\mathbf{I} -
 \mathbf{d}_{pred}\mathbf{d}_{pred}^{\top}
 \right)
 $$
@@ -1182,8 +1053,7 @@ $$
 归一化平面残差和单位球面残差表达形式不同，但本质都是：
 
 $$
-\text{预测视线方向}
--
+\text{预测视线方向} -
 \text{观测视线方向}
 $$
 
@@ -1192,8 +1062,7 @@ $$
 视觉残差的 Jacobian 可以写成链式结构：
 
 $$
-\mathbf{J}_{proj}
-=
+\mathbf{J}_{proj} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \frac{\partial\mathbf{P}_{c_j}}
@@ -1213,15 +1082,13 @@ $$
 由：
 
 $$
-\mathbf{P}_{c_j}
-=
+\mathbf{P}_{c_j} =
 \mathbf{R}_{bc}^{\top}
 \left(
 \mathbf{R}_j^\top
 \left(
 \mathbf{P}_{w}-\mathbf{p}_j
-\right)
--
+\right) -
 \mathbf{p}_{bc}
 \right)
 $$
@@ -1229,8 +1096,7 @@ $$
 以及：
 
 $$
-\mathbf{P}_{w}
-=
+\mathbf{P}_{w} =
 \mathbf{R}_i\mathbf{P}_{b_i}+\mathbf{p}_i
 $$
 
@@ -1238,17 +1104,14 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\delta\mathbf{p}_i}
-=
+{\partial\delta\mathbf{p}_i} =
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\delta\mathbf{p}_j}
-=
--
+{\partial\delta\mathbf{p}_j} = -
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 $$
@@ -1260,8 +1123,7 @@ $$
 宿主帧相机系三维点为：
 
 $$
-\mathbf{P}_{c_i}
-=
+\mathbf{P}_{c_i} =
 \frac{1}{\lambda}
 \bar{\mathbf{u}}_i
 $$
@@ -1270,9 +1132,7 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_i}}
-{\partial\lambda}
-=
--
+{\partial\lambda} = -
 \frac{1}{\lambda^2}
 \bar{\mathbf{u}}_i
 $$
@@ -1281,14 +1141,12 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\lambda}
-=
+{\partial\lambda} =
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 \mathbf{R}_i
 \mathbf{R}_{bc}
-\left(
--
+\left( -
 \frac{1}{\lambda^2}
 \bar{\mathbf{u}}_i
 \right)
@@ -1298,8 +1156,7 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{proj}}
-{\partial\lambda}
-=
+{\partial\lambda} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \frac{\partial\mathbf{P}_{c_j}}
@@ -1313,18 +1170,15 @@ $$
 采用右扰动：
 
 $$
-\mathbf{R}_i
-\leftarrow
+\mathbf{R}_i \leftarrow
 \mathbf{R}_i\exp(\delta\boldsymbol{\theta}_i^{\wedge})
 $$
 
 有：
 
 $$
-\mathbf{R}_i\exp(\delta\boldsymbol{\theta}_i^{\wedge})\mathbf{P}_{b_i}
-\approx
-\mathbf{R}_i\mathbf{P}_{b_i}
--
+\mathbf{R}_i\exp(\delta\boldsymbol{\theta}_i^{\wedge})\mathbf{P}_{b_i} \approx
+\mathbf{R}_i\mathbf{P}_{b_i} -
 \mathbf{R}_i\mathbf{P}_{b_i}^{\wedge}
 \delta\boldsymbol{\theta}_i
 $$
@@ -1333,9 +1187,7 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\delta\boldsymbol{\theta}_i}
-=
--
+{\partial\delta\boldsymbol{\theta}_i} = -
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 \mathbf{R}_i
@@ -1346,12 +1198,10 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{proj}}
-{\partial\delta\boldsymbol{\theta}_i}
-=
+{\partial\delta\boldsymbol{\theta}_i} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
-\left(
--
+\left( -
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 \mathbf{R}_i
@@ -1366,8 +1216,7 @@ $$
 令：
 
 $$
-\mathbf{P}_{b_j}
-=
+\mathbf{P}_{b_j} =
 \mathbf{R}_j^\top
 \left(
 \mathbf{P}_{w}-\mathbf{p}_j
@@ -1382,10 +1231,8 @@ $$
 \right)^\top
 \left(
 \mathbf{P}_{w}-\mathbf{p}_j
-\right)
-\approx
-\mathbf{P}_{b_j}
-+
+\right) \approx
+\mathbf{P}_{b_j} +
 \mathbf{P}_{b_j}^{\wedge}
 \delta\boldsymbol{\theta}_j
 $$
@@ -1394,8 +1241,7 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\delta\boldsymbol{\theta}_j}
-=
+{\partial\delta\boldsymbol{\theta}_j} =
 \mathbf{R}_{bc}^{\top}
 \mathbf{P}_{b_j}^{\wedge}
 $$
@@ -1404,8 +1250,7 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{proj}}
-{\partial\delta\boldsymbol{\theta}_j}
-=
+{\partial\delta\boldsymbol{\theta}_j} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \mathbf{R}_{bc}^{\top}
@@ -1425,12 +1270,10 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\mathbf{p}_{bc}}
-=
+{\partial\mathbf{p}_{bc}} =
 \mathbf{R}_{bc}^{\top}
 \left(
-\mathbf{R}_j^\top\mathbf{R}_i
--
+\mathbf{R}_j^\top\mathbf{R}_i -
 \mathbf{I}
 \right)
 $$
@@ -1439,14 +1282,12 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{proj}}
-{\partial\mathbf{p}_{bc}}
-=
+{\partial\mathbf{p}_{bc}} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \mathbf{R}_{bc}^{\top}
 \left(
-\mathbf{R}_j^\top\mathbf{R}_i
--
+\mathbf{R}_j^\top\mathbf{R}_i -
 \mathbf{I}
 \right)
 $$
@@ -1463,8 +1304,7 @@ $$
 采用右扰动：
 
 $$
-\mathbf{R}_{bc}
-\leftarrow
+\mathbf{R}_{bc} \leftarrow
 \mathbf{R}_{bc}
 \exp(\delta\boldsymbol{\theta}_{bc}^{\wedge})
 $$
@@ -1473,10 +1313,8 @@ $$
 
 $$
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial\delta\boldsymbol{\theta}_{bc}}
-\approx
-\mathbf{P}_{c_j}^{\wedge}
--
+{\partial\delta\boldsymbol{\theta}_{bc}} \approx
+\mathbf{P}_{c_j}^{\wedge} -
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 \mathbf{R}_i
@@ -1488,13 +1326,11 @@ $$
 
 $$
 \frac{\partial\mathbf{r}_{proj}}
-{\partial\delta\boldsymbol{\theta}_{bc}}
-=
+{\partial\delta\boldsymbol{\theta}_{bc}} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \left(
-\mathbf{P}_{c_j}^{\wedge}
--
+\mathbf{P}_{c_j}^{\wedge} -
 \mathbf{R}_{bc}^{\top}
 \mathbf{R}_j^\top
 \mathbf{R}_i
@@ -1512,8 +1348,7 @@ $$
 设某个特征点在图像上的观测为：
 
 $$
-\mathbf{u}
-=
+\mathbf{u} =
 \begin{bmatrix}
 u\\v
 \end{bmatrix}
@@ -1522,8 +1357,7 @@ $$
 该点在图像上的速度为：
 
 $$
-\dot{\mathbf{u}}
-=
+\dot{\mathbf{u}} =
 \begin{bmatrix}
 \dot{u}\\\dot{v}
 \end{bmatrix}
@@ -1532,23 +1366,18 @@ $$
 如果相机观测时间需要补偿 $t_d$，一阶近似为：
 
 $$
-\mathbf{u}(t+t_d)
-\approx
-\mathbf{u}(t)
-+
+\mathbf{u}(t+t_d) \approx
+\mathbf{u}(t) +
 t_d\dot{\mathbf{u}}(t)
 $$
 
 因此视觉残差会变成：
 
 $$
-\mathbf{r}_{proj}
-=
-\pi(\mathbf{P}_{c_j}(t_d))
--
+\mathbf{r}_{proj} =
+\pi(\mathbf{P}_{c_j}(t_d)) -
 \left(
-\mathbf{u}_{j}
-+
+\mathbf{u}_{j} +
 t_d\dot{\mathbf{u}}_{j}
 \right)
 $$
@@ -1556,23 +1385,19 @@ $$
 如果宿主帧观测也参与时间补偿，那么 $\mathbf{P}_{c_i}$ 也会受到 $t_d$ 影响，因为：
 
 $$
-\bar{\mathbf{u}}_{i}(t_i+t_d)
-\approx
-\bar{\mathbf{u}}_{i}(t_i)
-+
+\bar{\mathbf{u}}_{i}(t_i+t_d) \approx
+\bar{\mathbf{u}}_{i}(t_i) +
 t_d\dot{\bar{\mathbf{u}}}_{i}(t_i)
 $$
 
 所以时间偏移 Jacobian 本质上来自两个部分：
 
 $$
-\frac{\partial\mathbf{r}_{proj}}{\partial t_d}
-=
+\frac{\partial\mathbf{r}_{proj}}{\partial t_d} =
 \frac{\partial\mathbf{r}_{proj}}
 {\partial\mathbf{P}_{c_j}}
 \frac{\partial\mathbf{P}_{c_j}}
-{\partial t_d}
--
+{\partial t_d} -
 \dot{\mathbf{u}}_j
 $$
 
@@ -1590,16 +1415,14 @@ $$
 $$
 \left\|
 \mathbf{r}
-\right\|_{\mathbf{\Omega}}^{2}
-=
+\right\|_{\mathbf{\Omega}}^{2} =
 \mathbf{r}^{\top}\mathbf{\Omega}\mathbf{r}
 $$
 
 其中：
 
 $$
-\mathbf{\Omega}
-=
+\mathbf{\Omega} =
 \mathbf{\Sigma}^{-1}
 $$
 
@@ -1608,41 +1431,35 @@ $$
 $$
 \left\|
 \mathbf{e}
-\right\|^{2}
-=
+\right\|^{2} =
 \mathbf{e}^{\top}\mathbf{e}
 $$
 
 因此对信息矩阵做分解：
 
 $$
-\mathbf{\Omega}
-=
+\mathbf{\Omega} =
 \mathbf{L}\mathbf{L}^{\top}
 $$
 
 令：
 
 $$
-\mathbf{e}
-=
+\mathbf{e} =
 \mathbf{L}^{\top}\mathbf{r}
 $$
 
 则：
 
 $$
-\mathbf{r}^{\top}\mathbf{\Omega}\mathbf{r}
-=
-\mathbf{r}^{\top}\mathbf{L}\mathbf{L}^{\top}\mathbf{r}
-=
+\mathbf{r}^{\top}\mathbf{\Omega}\mathbf{r} =
+\mathbf{r}^{\top}\mathbf{L}\mathbf{L}^{\top}\mathbf{r} =
 \left(
 \mathbf{L}^{\top}\mathbf{r}
 \right)^{\top}
 \left(
 \mathbf{L}^{\top}\mathbf{r}
-\right)
-=
+\right) =
 \mathbf{e}^{\top}\mathbf{e}
 $$
 
@@ -1655,14 +1472,12 @@ $$
 对应地，Jacobian 也要一起左乘：
 
 $$
-\tilde{\mathbf{r}}
-=
+\tilde{\mathbf{r}} =
 \mathbf{L}^{\top}\mathbf{r}
 $$
 
 $$
-\tilde{\mathbf{J}}
-=
+\tilde{\mathbf{J}} =
 \mathbf{L}^{\top}\mathbf{J}
 $$
 
@@ -1671,16 +1486,14 @@ $$
 对于视觉观测，如果像素噪声标准差为 $\sigma_{pix}$，相机焦距为 $f$，那么归一化平面上的噪声标准差近似为：
 
 $$
-\sigma_{norm}
-=
+\sigma_{norm} =
 \frac{\sigma_{pix}}{f}
 $$
 
 协方差为：
 
 $$
-\mathbf{\Sigma}_{img}
-=
+\mathbf{\Sigma}_{img} =
 \left(
 \frac{\sigma_{pix}}{f}
 \right)^2
@@ -1690,10 +1503,8 @@ $$
 信息矩阵为：
 
 $$
-\mathbf{\Omega}_{img}
-=
-\mathbf{\Sigma}_{img}^{-1}
-=
+\mathbf{\Omega}_{img} =
+\mathbf{\Sigma}_{img}^{-1} =
 \left(
 \frac{f}{\sigma_{pix}}
 \right)^2
@@ -1703,8 +1514,7 @@ $$
 sqrt information 为：
 
 $$
-\mathbf{L}^{\top}
-=
+\mathbf{L}^{\top} =
 \frac{f}{\sigma_{pix}}
 \mathbf{I}_{2}
 $$
@@ -1733,14 +1543,12 @@ $$
 直观理解：
 
 $$
-\text{内点}
-\Rightarrow
+\text{内点} \Rightarrow
 \text{正常参与优化}
 $$
 
 $$
-\text{外点}
-\Rightarrow
+\text{外点} \Rightarrow
 \text{降低权重，避免污染状态}
 $$
 
@@ -1749,16 +1557,11 @@ $$
 VINS 后端优化可以沿着一条主线理解：
 
 $$
-\text{测量模型}
-\rightarrow
-\text{残差}
-\rightarrow
-\text{一阶线性化}
-\rightarrow
-\text{Jacobian}
-\rightarrow
-\text{加权正规方程}
-\rightarrow
+\text{测量模型} \rightarrow
+\text{残差} \rightarrow
+\text{一阶线性化} \rightarrow
+\text{Jacobian} \rightarrow
+\text{加权正规方程} \rightarrow
 \text{状态更新}
 $$
 
